@@ -26,11 +26,11 @@ namespace cmp {
 
             ~SymbolTable() {}
 
-            const size_type size() const {
+            size_type size() const {
                 return this->table.size();
             }
 
-            const bool empty() const {
+            bool empty() const {
                 return this->table.empty();
             }
 
@@ -56,6 +56,7 @@ namespace cmp {
                 size_t max_key_len = 0;
 
                 for (auto [key, val] : t.table) {
+                    UNUSED(val);
                     if (const size_t key_len = key.size(); key_len > max_key_len) {
                         max_key_len = key_len;
                     }

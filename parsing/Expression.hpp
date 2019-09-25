@@ -9,16 +9,6 @@
 #include "fwd.hpp"
 
 namespace cmp {
-    namespace detail {
-        constexpr std::string_view _BinaryOperandStrings[] {
-            "PLUS", "MINUS", "TIMES", "DIV"
-        };
-
-        constexpr std::string_view _UnaryOperandStrings[] {
-            "MIN"
-        };
-    }
-
     /**
      *  \brief  Types of Binary operands.
      *          `+`, `-`, `*`, `/`
@@ -207,7 +197,7 @@ namespace cmp {
             }
 
             int maxargs() const {
-                return 1 + this->tail->maxargs();
+                return utils::math::max(this->head->maxargs(), 1 + this->tail->maxargs());
             }
 
             InterpretResult interpret(SymbolTable& table) const {
@@ -248,11 +238,29 @@ namespace cmp {
             }
     };
 
+    namespace detail {
+        static constexpr std::string_view _BinaryOperandStrings[] {
+            "PLUS", "MINUS", "TIMES", "DIV"
+        };
+
+        static constexpr std::string_view to_string(const cmp::BinaryOperand o) {
+            return cmp::detail::_BinaryOperandStrings[utils::traits::to_underlying(o)];
+        }
+
+        static constexpr std::string_view _UnaryOperandStrings[] {
+            "MIN"
+        };
+
+        static constexpr std::string_view to_string(const cmp::UnaryOperand o) {
+            return cmp::detail::_UnaryOperandStrings[utils::traits::to_underlying(o)];
+        }
+    }
+
     template<typename TChar, typename TCharTraits>
     auto& operator<<(std::basic_ostream<TChar, TCharTraits>& stream,
                      const BinaryOperand& op)
     {
-        stream << cmp::detail::_BinaryOperandStrings[utils::traits::to_underlying(op)];
+        stream << cmp::detail::to_string(op);
         return stream;
     }
 
@@ -260,7 +268,7 @@ namespace cmp {
     auto& operator<<(std::basic_ostream<TChar, TCharTraits>& stream,
                      const UnaryOperand& op)
     {
-        stream << cmp::detail::_UnaryOperandStrings[utils::traits::to_underlying(op)];
+        stream << cmp::detail::to_string(op);
         return stream;
     }
 }

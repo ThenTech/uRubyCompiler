@@ -2,15 +2,17 @@
 #include "utils/utils_lib/utils_version.hpp"
 #include "utils/utils_lib/utils_memory.hpp"
 
-static constexpr utils::Version VERSION(0, 1, 0, utils::version::prerelease::none);
+static constexpr utils::Version VERSION(0, 2, 0, utils::version::prerelease::none);
 
 #include "parsing/Expression.hpp"
 #include "parsing/Statement.hpp"
 #include "parsing/SymbolTable.hpp"
+#include "parsing/Lexer.hpp"
 
 /*
  *  Version history:
  *      v0.1.0 : Opgaven 2, 3 en 4 uit hoofdstuk 1
+ *      v0.2.0 : Project deel 1 - Flex lexer
  */
 int main(int argc, char *argv[]) {
     const std::string versionstring = "UHasselt[Compilers] project v" + VERSION.to_string() + " - William Thenaers";
@@ -18,6 +20,7 @@ int main(int argc, char *argv[]) {
     utils::Logger::Notice(versionstring + "\n");
     UNUSED(argc, argv);
 
+#ifdef Assignment_1_Opwarmingsoefening
     using namespace cmp;
     SymbolTable table;
 
@@ -58,6 +61,18 @@ int main(int argc, char *argv[]) {
 
     utils::Logger::Info("Resulting Symbol Table:");
     utils::Logger::Stream(table);
+#endif
+
+    try {
+        cmp::Lexer lex("../test_files/lex.testjes/lexme_test1.rb");
+        // cmp::Lexer lex("../test_files/lex.testjes/lexme_test2.rb");
+
+        lex.interpret();
+
+        utils::Logger::Info("Lexer token output:");
+        utils::Logger::Stream(lex);
+        // utils::Logger::Stream("\nRaw:\n"); lex.stream_parsed(utils::Logger::GetConsoleStream());
+    } CATCH_AND_LOG_ERROR_TRACE()
 
     return 0;
 }
