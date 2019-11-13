@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
     const std::string versionstring = "UHasselt[Compilers] project v" + VERSION.to_string() + " - William Thenaers";
     utils::Logger::SetScreenTitle(versionstring);
     utils::Logger::Notice(versionstring + "\n");
-    UNUSED(argc, argv);
 
 #ifdef Assignment_1_Opwarmingsoefening
+    UNUSED(argc, argv);
     using namespace cmp;
     SymbolTable table;
 
@@ -63,15 +63,34 @@ int main(int argc, char *argv[]) {
     utils::Logger::Stream(table);
 #endif
 
+    argc--; argv++;
+    std::string input_file, output_file;
+    if (argc > 0) {
+        // "../test_files/lex.testjes/lexme_test1.rb"
+        // "../test_files/lex.testjes/lexme_test2.rb"
+        input_file = argv[0];
+    } else {
+        utils::Logger::Warn("Please provide an input µRuby file!");
+        return 1;
+    }
+
+    if (argc > 1) {
+        output_file = argv[1];
+    }
+
     try {
-        cmp::Lexer lex("../test_files/lex.testjes/lexme_test1.rb");
-        // cmp::Lexer lex("../test_files/lex.testjes/lexme_test2.rb");
+        cmp::Lexer lex(input_file);
+        lex.lexical_analyse();
 
-        lex.interpret();
+        if (output_file.empty()) {
+            utils::Logger::Info("Lexer token output:");
+            utils::Logger::Stream(lex);
+        } else {
+            std::ofstream(output_file) << lex;
+            utils::Logger::Info("Output written to \"%s\"", output_file.c_str());
+        }
 
-        utils::Logger::Info("Lexer token output:");
-        utils::Logger::Stream(lex);
-        // utils::Logger::Stream("\nRaw:\n"); lex.stream_parsed(utils::Logger::GetConsoleStream());
+//        utils::Logger::Stream("\nRaw:\n"); lex.stream_parsed(utils::Logger::GetConsoleStream());
     } CATCH_AND_LOG_ERROR_TRACE()
 
     return 0;

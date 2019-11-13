@@ -1,9 +1,10 @@
 #pragma once
 
+#include <variant>
 #include "SymbolTable.hpp"
 
 namespace cmp {
-    using InterpretResult = std::pair<int, SymbolTable&>;
+    using InterpretResult = std::variant<int32_t, double, bool>;
 
     class Common {
         public:

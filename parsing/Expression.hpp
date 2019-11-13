@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+#include <variant>
 #include "../utils/utils_lib/utils_exceptions.hpp"
 #include "../utils/utils_lib/utils_traits.hpp"
 #include "../utils/utils_lib/utils_math.hpp"
@@ -18,11 +19,21 @@ namespace cmp {
     };
 
     /**
+     *  \brief  Types of Comparator operands.
+     *          `==`, `!=`, `<`, `<=`, `>`, `>=`,
+     *          `&&`, `||`
+     */
+    enum class BinCompare {
+        EQ, NEQ, LT, LE, GT, GE,
+        AND, OR
+    };
+
+    /**
      *  \brief  Types of Unary operands.
-     *          `-`
+     *          `-`, `!`
      */
     enum class UnaryOperand {
-         Minus
+         Plus, Minus, Not
     };
 
     class IdExpression : public Expression {
@@ -49,15 +60,15 @@ namespace cmp {
 
             InterpretResult interpret(SymbolTable& table) const {
                 if (const auto val = table.get(this->id)) {
-                    return { val.value(), table };
+                    return { val.value() };
                 }
                 throw utils::exceptions::KeyDoesNotExistException("Symboltable", "this->id");
             }
     };
 
-    class NumericExpression : public Expression {
+    class ValueExpression : public Expression {
         public:
-            int num;
+            InterpretResult value;
 
             /**
              *  \brief  Construct a new Numeric Expression object
@@ -65,20 +76,18 @@ namespace cmp {
              *
              *  \param  num
              */
-            NumericExpression(int num)
-                : num{num}
-            {
-                // Empty
-            }
+            ValueExpression(int32_t val) : value{val} { }
+            ValueExpression(double  val) : value{val} { }
+            ValueExpression(bool    val) : value{val} { }
 
-            ~NumericExpression() {}
+            ~ValueExpression() {}
 
             int maxargs() const {
                 return 0;
             }
 
             InterpretResult interpret(SymbolTable& table) const {
-                return { this->num, table };
+                return this->value;
             }
     };
 
@@ -117,24 +126,151 @@ namespace cmp {
                 const auto ret_left  = this->left->interpret(table);
                 const auto ret_right = this->right->interpret(table);
 
-                int retval = ret_left.first;
+                InterpretResult retval;
 
-                switch (this->op) {
-                    case BinaryOperand::Plus:
-                        retval += ret_right.first;
-                        break;
-                    case BinaryOperand::Minus:
-                        retval -= ret_right.first;
-                        break;
-                    case BinaryOperand::Times:
-                        retval *= ret_right.first;
-                        break;
-                    case BinaryOperand::Div:
-                        retval /= ret_right.first;
-                        break;
-                }
+                std::visit([&](auto&& argl) {
+                    std::visit([&](auto&& argr) {
+                        switch (this->op) {
+                            case BinaryOperand::Plus:
+                                retval = argl + argr;
+                                break;
+                            case BinaryOperand::Minus:
+                                retval = argl - argr;
+                                break;
+                            case BinaryOperand::Times:
+                                retval = argl * argr;
+                                break;
+                            case BinaryOperand::Div:
+                                retval = argl / argr;
+                                break;
+                        }
+                    }, ret_right);
+                }, ret_left);
 
-                return { retval, table };
+                return { retval };
+            }
+    };
+
+    class UnaryOperandExpression : public Expression {
+        public:
+            UnaryOperand op;
+            Expression *expr;
+
+            /**
+             *  \brief  Construct a new Unary Operand Expression object
+             *          `Exp -> Unop Exp`
+             *
+             *  \param  op
+             *  \param  expr
+             */
+            UnaryOperandExpression(UnaryOperand op, Expression *expr)
+                : op{op}
+                , expr{expr}
+            {
+                // Empty
+            }
+
+            ~UnaryOperandExpression() {
+                utils::memory::delete_var(this->expr);
+            }
+
+            int maxargs() const {
+                // TODO are nested expressions allowed in OperandExpression?
+                return this->expr->maxargs();
+            }
+
+            InterpretResult interpret(SymbolTable& table) const {
+                const auto ret = this->expr->interpret(table);
+
+                InterpretResult retval;
+
+                std::visit([&](auto&& arg) {
+                    switch (this->op) {
+                        case UnaryOperand::Plus:
+                            retval = arg;
+                            break;
+                        case UnaryOperand::Minus:
+                            retval = -arg;
+                            break;
+                        case UnaryOperand::Not:
+                            retval = !arg;
+                            break;
+                    }
+                }, ret);
+
+                return { retval };
+            }
+    };
+
+    class BinCompareExpression : public Expression {
+        public:
+            Expression *left, *right;
+            BinCompare comp;
+
+            /**
+             *  \brief  Construct a new Binary Operand Expression object
+             *          `Exp -> Exp Binop Exp`
+             *
+             *  \param  left
+             *  \param  op
+             *  \param  right
+             */
+            BinCompareExpression(Expression *left, BinCompare comp, Expression *right)
+                : left{left}
+                , right{right}
+                , comp{comp}
+            {
+                // Empty
+            }
+
+            ~BinCompareExpression() {
+                utils::memory::delete_var(this->left);
+                utils::memory::delete_var(this->right);
+            }
+
+            int maxargs() const {
+                // TODO are nested expressions allowed in OperandExpression?
+                return utils::math::max(this->left->maxargs(), this->right->maxargs());
+            }
+
+            InterpretResult interpret(SymbolTable& table) const {
+                const auto ret_left  = this->left->interpret(table);
+                const auto ret_right = this->right->interpret(table);
+
+                bool retval = false;
+
+                std::visit([&](auto&& argl) {
+                    std::visit([&](auto&& argr) {
+                        switch (this->comp) {
+                            case BinCompare::EQ:
+                                retval = argl == argr;
+                                break;
+                            case BinCompare::NEQ:
+                                retval = argl != argr;
+                                break;
+                            case BinCompare::LT:
+                                retval = argl < argr;
+                                break;
+                            case BinCompare::LE:
+                                retval = argl <= argr;
+                                break;
+                            case BinCompare::GT:
+                                retval = argl > argr;
+                                break;
+                            case BinCompare::GE:
+                                retval = argl >= argr;
+                                break;
+                            case BinCompare::AND:
+                                retval = argl && argr;
+                                break;
+                            case BinCompare::OR:
+                                retval = argl || argr;
+                                break;
+                        }
+                    }, ret_right);
+                }, ret_left);
+
+                return { retval };
             }
     };
 
@@ -202,7 +338,7 @@ namespace cmp {
 
             InterpretResult interpret(SymbolTable& table) const {
                 const auto ret = this->head->interpret(table);
-                utils::Logger::Stream(ret.first, " ");
+                utils::Logger::Stream(ret, " ");
                 return this->tail->interpret(table);
             }
     };
@@ -233,10 +369,43 @@ namespace cmp {
 
             InterpretResult interpret(SymbolTable& table) const {
                 const auto ret = this->last->interpret(table);
-                utils::Logger::Stream(ret.first, "\n");
+                utils::Logger::Stream(ret, "\n");
                 return ret;
             }
     };
+
+    class FunctionExpression : Expression {
+        public:
+            IdExpression   *name;
+            ExpressionList *exp;
+
+            FunctionExpression(IdExpression *name, ExpressionList *exp)
+                : name{name}
+                , exp{exp}
+            {
+                // Empty
+            }
+
+            ~FunctionExpression() {
+                utils::memory::delete_var(this->name);
+                utils::memory::delete_var(this->exp);
+            }
+
+            int maxargs() const {
+                return this->exp->maxargs();
+            }
+
+            InterpretResult interpret(SymbolTable& table) const {
+                const auto fn_name = this->name->id;
+                const auto ret = this->exp->interpret(table);
+
+                utils::Logger::Stream()
+                    << this->name->id
+                    << "(" << ret << ")\n";
+
+                return ret;
+            }
+    }
 
     namespace detail {
         static constexpr std::string_view _BinaryOperandStrings[] {

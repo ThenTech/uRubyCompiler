@@ -18,7 +18,7 @@ namespace cmp {
 
         public:
             Lexer() {
-                // Uses std::in
+                // Uses std::in by default
                 UNUSED(yyunput); // Remove unused warning
                 yyset_out(nullptr);
             }
@@ -39,13 +39,13 @@ namespace cmp {
                 }
             }
 
-            void interpret() {
+            void lexical_analyse() {
                 int id;
 
                 while ((id = yylex()) > 0) {
                     this->tokens.emplace_back(
                         static_cast<cmp::Token>(id),
-                        std::string{yytext}
+                        std::string{yytext, size_t(yyleng)}
                     );
                 }
             }

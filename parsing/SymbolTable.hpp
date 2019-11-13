@@ -7,11 +7,13 @@
 #include "../utils/utils_lib/utils_algorithm.hpp"
 #include "../utils/utils_lib/utils_string.hpp"
 
+#include "fwd.hpp"
+
 
 namespace cmp {
     class SymbolTable {
         private:
-            typedef std::map<std::string_view, int> _TableType;
+            typedef std::map<std::string_view, InterpretResult> _TableType;
             _TableType table;
 
         public:
@@ -63,7 +65,15 @@ namespace cmp {
                 }
 
                 for (auto [key, val] : t.table) {
-                    stream << utils::string::format("[%*s] : %d\n", max_key_len, key.data(), val);
+                    stream << utils::string::format("[%*s] : ", max_key_len, key.data());
+
+                    if (std::holds_alternative<bool>(val)) {
+                        stream << std::boolalpha << std::get<bool>(val);
+                    } else {
+                        std::visit([](auto&& arg){stream << arg;}, val);
+                    }
+
+                    stream << "\n";
                 }
 
                 return stream;

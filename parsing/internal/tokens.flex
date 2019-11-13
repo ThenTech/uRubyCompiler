@@ -140,7 +140,6 @@ return                 { return ENUM_VAL(cmp::Token::RETURN);    }
                 yytext, yylocation.line, yylocation.column - 1
             );
 
-
             utils::Logger::Error(frmt);
             // fprintf(stderr, "%s\n", frmt.c_str());
         }
