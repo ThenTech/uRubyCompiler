@@ -2,7 +2,7 @@
 #include "utils/utils_lib/utils_version.hpp"
 #include "utils/utils_lib/utils_memory.hpp"
 
-static constexpr utils::Version VERSION(0, 2, 0, utils::version::prerelease::none);
+static constexpr utils::Version VERSION(0, 3, 1, utils::version::prerelease::none);
 
 #include "parsing/Expression.hpp"
 #include "parsing/Statement.hpp"
@@ -13,6 +13,7 @@ static constexpr utils::Version VERSION(0, 2, 0, utils::version::prerelease::non
  *  Version history:
  *      v0.1.0 : Opgaven 2, 3 en 4 uit hoofdstuk 1
  *      v0.2.0 : Project deel 1 - Flex lexer
+ *      v0.3.0 : Project deel 2 - Bison parser
  */
 int main(int argc, char *argv[]) {
     const std::string versionstring = "UHasselt[Compilers] project v" + VERSION.to_string() + " - William Thenaers";
@@ -81,6 +82,8 @@ int main(int argc, char *argv[]) {
     try {
         cmp::Lexer lex(input_file);
         lex.lexical_analyse();
+        lex.reset_file();
+        lex.lexical_parse();
 
         if (output_file.empty()) {
             utils::Logger::Info("Lexer token output:");
@@ -88,6 +91,19 @@ int main(int argc, char *argv[]) {
         } else {
             std::ofstream(output_file) << lex;
             utils::Logger::Info("Output written to \"%s\"", output_file.c_str());
+        }
+
+
+        if (lex.get_root() != nullptr) {
+            utils::Logger::Info("Interpreting result:");
+
+            cmp::SymbolTable table;
+
+            utils::Logger::Stream(lex.get_root());
+            lex.get_root()->interpret(table);
+
+            utils::Logger::Info("Resulting Symbol Table:");
+            utils::Logger::Stream(table);
         }
 
 //        utils::Logger::Stream("\nRaw:\n"); lex.stream_parsed(utils::Logger::GetConsoleStream());

@@ -23,6 +23,9 @@ namespace cmp {
                 , exp{exp}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("AssignStatement(IdExpression(%s), Expression)\n", id->id.data());
+                #endif
             }
 
             ~AssignStatement() {
@@ -55,6 +58,9 @@ namespace cmp {
                 : exps{exps}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("PrintStatement(ExpressionList)\n");
+                #endif
             }
 
             ~PrintStatement() {
@@ -87,6 +93,9 @@ namespace cmp {
                 , stm2{stm2}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("CompoundStatement(Statement, Statement)\n");
+                #endif
             }
 
             ~CompoundStatement() {
@@ -124,6 +133,9 @@ namespace cmp {
                 , stm_false{stm_false}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("IfStatement(Expression, Statement, Statement)\n");
+                #endif
             }
 
             ~IfStatement() {
@@ -171,6 +183,9 @@ namespace cmp {
                 , stm_true{stm_true}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("UnlessStatement(Expression, Statement, Statement)\n");
+                #endif
             }
 
             ~UnlessStatement() {
@@ -216,6 +231,9 @@ namespace cmp {
                 , stm{stm}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("WhileStatement(Expression, Statement)\n");
+                #endif
             }
 
             ~WhileStatement() {
@@ -262,6 +280,9 @@ namespace cmp {
                 , stm{stm}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("UntilStatement(Expression, Statement)\n");
+                #endif
             }
 
             ~UntilStatement() {
@@ -302,6 +323,9 @@ namespace cmp {
                 , next{next}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("WhenStatement(Expression, Statement, Statement)\n");
+                #endif
             }
 
             ~WhenStatement() {
@@ -341,6 +365,9 @@ namespace cmp {
                 , when_stm{when_stm}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("CaseStatement(Expression, WhenStatement)\n");
+                #endif
             }
 
             ~CaseStatement() {
@@ -378,6 +405,9 @@ namespace cmp {
                 , body{body}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("FunctionStatement(Expression, ExpressionList, Statement)\n");
+                #endif
             }
 
             FunctionStatement(Expression *name, Statement *body)
@@ -386,6 +416,9 @@ namespace cmp {
                 , body{body}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("FunctionStatement(Expression, Statement)\n");
+                #endif
             }
 
             ~FunctionStatement() {
@@ -400,6 +433,40 @@ namespace cmp {
 
             SymbolTable& interpret(SymbolTable& table) const {
                 // TODO FunctionStatement::interpret
+                // Interpret body and set this->name in table to result?
+                return table;
+            }
+    };
+
+    class UndefStatement : public Statement {
+        public:
+            IdExpression *id;
+
+            /**
+             *  \brief  Construct a new Undef Statement object
+             *          `Stm -> undef id`
+             *
+             *  \param  id
+             */
+            UndefStatement(IdExpression *id)
+                : id{id}
+            {
+                // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("UndefStatement(IdExpression(%s))\n", id->id.data());
+                #endif
+            }
+
+            ~UndefStatement() {
+                utils::memory::delete_var(this->id);
+            }
+
+            int maxargs() const {
+                return 0;
+            }
+
+            SymbolTable& interpret(SymbolTable& table) const {
+                table.erase(this->id->id);
                 return table;
             }
     };
@@ -416,6 +483,9 @@ namespace cmp {
                 : value{value}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("ReturnStatement(Expression)\n");
+                #endif
             }
 
             ~ReturnStatement() {

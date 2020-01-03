@@ -1,16 +1,19 @@
 #pragma once
 
-#include <map>
-#include <string_view>
-#include <optional>
-
 #include "../utils/utils_lib/utils_algorithm.hpp"
 #include "../utils/utils_lib/utils_string.hpp"
 
 #include "fwd.hpp"
 
+#include <map>
+#include <string_view>
+#include <optional>
+#include <variant>
+
 
 namespace cmp {
+    using InterpretResult = std::variant<int32_t, double, bool>;
+
     class SymbolTable {
         private:
             typedef std::map<std::string_view, InterpretResult> _TableType;
@@ -70,7 +73,7 @@ namespace cmp {
                     if (std::holds_alternative<bool>(val)) {
                         stream << std::boolalpha << std::get<bool>(val);
                     } else {
-                        std::visit([](auto&& arg){stream << arg;}, val);
+                        std::visit([&](auto&& arg){stream << arg;}, val);
                     }
 
                     stream << "\n";

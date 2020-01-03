@@ -1,11 +1,10 @@
 #pragma once
 
-#include <variant>
 #include "SymbolTable.hpp"
 
-namespace cmp {
-    using InterpretResult = std::variant<int32_t, double, bool>;
+#define CMP_VERBOSE_CTORS 1
 
+namespace cmp {
     class Common {
         public:
             virtual int maxargs() const = 0;

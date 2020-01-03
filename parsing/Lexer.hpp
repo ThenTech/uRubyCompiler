@@ -5,6 +5,7 @@
  */
 #include "tokens.hpp"
 #include "internal/yylexer.hpp"
+#include "internal/yyparser.hpp"
 #include "../utils/utils_lib/utils_io.hpp"
 #include "../utils/utils_lib/utils_exceptions.hpp"
 
@@ -18,7 +19,7 @@ namespace cmp {
 
         public:
             Lexer() {
-                // Uses std::in by default
+                // Uses std::cin by default
                 UNUSED(yyunput); // Remove unused warning
                 yyset_out(nullptr);
             }
@@ -37,6 +38,14 @@ namespace cmp {
                 if (this->infile) {
                     std::fclose(this->infile);
                 }
+
+                utils::memory::delete_var(root);
+            }
+
+            void reset_file() {
+                std::rewind(this->infile);
+                yylocation = { 1, 1 };
+                utils::memory::delete_var(root);
             }
 
             void lexical_analyse() {
@@ -48,6 +57,17 @@ namespace cmp {
                         std::string{yytext, size_t(yyleng)}
                     );
                 }
+            }
+
+            void lexical_parse() {
+                int result = yyparse();
+
+                utils::Logger::Info("[LEXER] Parsing ended with result: %d", result);
+                utils::Logger::Stream("root = ", (void*)root, "\n");
+            }
+
+            const Statement * get_root() const {
+                return root;
             }
 
             template<typename TChar, typename TCharTraits>

@@ -12,10 +12,10 @@
 namespace cmp {
     /**
      *  \brief  Types of Binary operands.
-     *          `+`, `-`, `*`, `/`
+     *          `+`, `-`, `*`, `/`, `%`, `&`, `|`, `^`
      */
     enum class BinaryOperand {
-        Plus, Minus, Times, Div
+        Plus, Minus, Times, Div, Mod, BinAnd, BinOr, BinXor
     };
 
     /**
@@ -30,15 +30,56 @@ namespace cmp {
 
     /**
      *  \brief  Types of Unary operands.
-     *          `-`, `!`
+     *          `+`, `-`, `!`, `~`
      */
     enum class UnaryOperand {
-         Plus, Minus, Not
+         Plus, Minus, Not, BinNot
     };
+
+    namespace detail {
+        static constexpr std::string_view _BinaryOperandStrings[] {
+            "PLUS", "MINUS", "TIMES", "DIV", "BINAND", "BINOR", "BINXOR"
+        };
+
+        static constexpr std::string_view to_string(const cmp::BinaryOperand o) {
+            return cmp::detail::_BinaryOperandStrings[utils::traits::to_underlying(o)];
+        }
+
+        static constexpr std::string_view _UnaryOperandStrings[] {
+            "PLUS", "MIN", "NOT", "BINNOT"
+        };
+
+        static constexpr std::string_view to_string(const cmp::UnaryOperand o) {
+            return cmp::detail::_UnaryOperandStrings[utils::traits::to_underlying(o)];
+        }
+
+        static constexpr std::string_view _BinCompareStrings[] {
+            "==", "!=", "<", "<=", ">", ">=", "&&", "||"
+        };
+
+        static constexpr std::string_view to_string(const cmp::BinCompare o) {
+            return cmp::detail::_BinCompareStrings[utils::traits::to_underlying(o)];
+        }
+    }
+
+    template<
+        typename TChar,
+        typename TCharTraits,
+        typename T,
+        typename = typename std::enable_if_t<std::is_same_v<T, cmp::BinaryOperand>
+                                          || std::is_same_v<T, cmp::UnaryOperand>
+                                          || std::is_same_v<T, cmp::BinCompare>>
+    > auto& operator<<(std::basic_ostream<TChar, TCharTraits>& stream,
+                     const T& op)
+    {
+        stream << cmp::detail::to_string(op);
+        return stream;
+    }
+
 
     class IdExpression : public Expression {
         public:
-            std::string_view id;
+            std::string id;
 
             /**
              *  \brief  Construct a new Id Expression object
@@ -47,9 +88,12 @@ namespace cmp {
              *  \param  id
              */
             IdExpression(std::string_view id)
-                : id{id}
+                : id{id.data(), id.size()}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("IdExpression(%s)\n", this->id.data());
+                #endif
             }
 
             ~IdExpression() {}
@@ -76,9 +120,23 @@ namespace cmp {
              *
              *  \param  num
              */
-            ValueExpression(int32_t val) : value{val} { }
-            ValueExpression(double  val) : value{val} { }
-            ValueExpression(bool    val) : value{val} { }
+            ValueExpression(int32_t val) : value{val} {
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("ValueExpression(%d)\n", val);
+                #endif
+            }
+
+            ValueExpression(double val) : value{val} {
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("ValueExpression(%f)\n", val);
+                #endif
+            }
+
+            ValueExpression(bool val) : value{val} {
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("ValueExpression(%s)\n", val ? "true" : "false");
+                #endif
+            }
 
             ~ValueExpression() {}
 
@@ -110,6 +168,9 @@ namespace cmp {
                 , op{op}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("BinOperandExpression(Expression, %s, Expression)\n", cmp::detail::to_string(op).data());
+                #endif
             }
 
             ~BinOperandExpression() {
@@ -143,6 +204,30 @@ namespace cmp {
                             case BinaryOperand::Div:
                                 retval = argl / argr;
                                 break;
+                            default:
+                                if constexpr (std::is_integral_v<std::decay_t<decltype(argl)>>
+                                           && std::is_integral_v<std::decay_t<decltype(argr)>>)
+                                {
+                                    switch (this->op) {
+                                        case BinaryOperand::Mod:
+                                            retval = argl % argr;
+                                            break;
+                                        case BinaryOperand::BinAnd:
+                                            retval = argl & argr;
+                                            break;
+                                        case BinaryOperand::BinOr:
+                                            retval = argl | argr;
+                                            break;
+                                        case BinaryOperand::BinXor:
+                                            retval = argl ^ argr;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                } else {
+                                    // WARNING Error types not integral
+                                    retval = 0;
+                                }
                         }
                     }, ret_right);
                 }, ret_left);
@@ -168,6 +253,9 @@ namespace cmp {
                 , expr{expr}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("UnaryOperandExpression(%s, Expression)\n", cmp::detail::to_string(op).data());
+                #endif
             }
 
             ~UnaryOperandExpression() {
@@ -195,6 +283,14 @@ namespace cmp {
                         case UnaryOperand::Not:
                             retval = !arg;
                             break;
+                        case UnaryOperand::BinNot:
+                            if constexpr (std::is_integral_v<std::decay_t<decltype(arg)>>) {
+                                retval = ~int32_t(arg);
+                            } else {
+                                // WARNING Error type not integral
+                                retval = 0;
+                            }
+                            break;
                     }
                 }, ret);
 
@@ -221,6 +317,9 @@ namespace cmp {
                 , comp{comp}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("BinCompareExpression(Expression, %s, Expression)\n", cmp::detail::to_string(comp).data());
+                #endif
             }
 
             ~BinCompareExpression() {
@@ -291,6 +390,9 @@ namespace cmp {
                 , exp{exp}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("ExpseqExpression(Statement, Expression)\n");
+                #endif
             }
 
             ~ExpseqExpression() {
@@ -325,6 +427,9 @@ namespace cmp {
                 , tail{tail}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("PairExpressionList(Expression, ExpressionList)\n");
+                #endif
             }
 
             ~PairExpressionList() {
@@ -357,6 +462,9 @@ namespace cmp {
                 : last{last}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("LastExpressionList(Expression)\n");
+                #endif
             }
 
             ~LastExpressionList() {
@@ -374,7 +482,7 @@ namespace cmp {
             }
     };
 
-    class FunctionExpression : Expression {
+    class FunctionExpression : public Expression {
         public:
             IdExpression   *name;
             ExpressionList *exp;
@@ -384,6 +492,9 @@ namespace cmp {
                 , exp{exp}
             {
                 // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("FunctionExpression(IdExpression(%s), ExpressionList)\n", name->id.data());
+                #endif
             }
 
             ~FunctionExpression() {
@@ -400,44 +511,10 @@ namespace cmp {
                 const auto ret = this->exp->interpret(table);
 
                 utils::Logger::Stream()
-                    << this->name->id
+                    << fn_name
                     << "(" << ret << ")\n";
 
                 return ret;
             }
-    }
-
-    namespace detail {
-        static constexpr std::string_view _BinaryOperandStrings[] {
-            "PLUS", "MINUS", "TIMES", "DIV"
-        };
-
-        static constexpr std::string_view to_string(const cmp::BinaryOperand o) {
-            return cmp::detail::_BinaryOperandStrings[utils::traits::to_underlying(o)];
-        }
-
-        static constexpr std::string_view _UnaryOperandStrings[] {
-            "MIN"
-        };
-
-        static constexpr std::string_view to_string(const cmp::UnaryOperand o) {
-            return cmp::detail::_UnaryOperandStrings[utils::traits::to_underlying(o)];
-        }
-    }
-
-    template<typename TChar, typename TCharTraits>
-    auto& operator<<(std::basic_ostream<TChar, TCharTraits>& stream,
-                     const BinaryOperand& op)
-    {
-        stream << cmp::detail::to_string(op);
-        return stream;
-    }
-
-    template<typename TChar, typename TCharTraits>
-    auto& operator<<(std::basic_ostream<TChar, TCharTraits>& stream,
-                     const UnaryOperand& op)
-    {
-        stream << cmp::detail::to_string(op);
-        return stream;
-    }
+    };
 }
