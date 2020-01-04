@@ -81,32 +81,32 @@ int main(int argc, char *argv[]) {
 
     try {
         cmp::Lexer lex(input_file);
-        lex.lexical_analyse();
-        lex.reset_file();
-        lex.lexical_parse();
 
+        // Lex
+        lex.lexical_analyse();
         if (output_file.empty()) {
             utils::Logger::Info("Lexer token output:");
             utils::Logger::Stream(lex);
+            // lex.stream_parsed(utils::Logger::GetConsoleStream());
         } else {
             std::ofstream(output_file) << lex;
             utils::Logger::Info("Output written to \"%s\"", output_file.c_str());
         }
 
-
-        if (lex.get_root() != nullptr) {
+        // Parse (also does lexing, so reset file to start)
+        utils::Logger::Info("Bison parsing output:");
+        lex.reset_file();
+        if (lex.lexical_parse() == 0 && lex.get_root() != nullptr) {
             utils::Logger::Info("Interpreting result:");
 
             cmp::SymbolTable table;
 
-            utils::Logger::Stream(lex.get_root());
+            utils::Logger::Stream("Root object: ", lex.get_root(), " at ", static_cast<const void*>(lex.get_root()), "\n");
             lex.get_root()->interpret(table);
 
             utils::Logger::Info("Resulting Symbol Table:");
             utils::Logger::Stream(table);
         }
-
-//        utils::Logger::Stream("\nRaw:\n"); lex.stream_parsed(utils::Logger::GetConsoleStream());
     } CATCH_AND_LOG_ERROR_TRACE()
 
     return 0;

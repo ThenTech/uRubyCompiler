@@ -59,14 +59,21 @@ namespace cmp {
                 }
             }
 
-            void lexical_parse() {
-                int result = yyparse();
+            int lexical_parse() {
+                const int result = yyparse();
 
-                utils::Logger::Info("[LEXER] Parsing ended with result: %d", result);
-                utils::Logger::Stream("root = ", (void*)root, "\n");
+                if (result > 0) {
+                    utils::Logger::Error("[Lexer] Parsing completed with result: %d", result);
+                } else if (this->get_root() == nullptr) {
+                    utils::Logger::Warn("[Lexer] Parsing completed, but did not construct root!");
+                } else {
+                    utils::Logger::Success("[Lexer] Constructed root statement!");
+                }
+
+                return result;
             }
 
-            const Statement * get_root() const {
+            const Statement* get_root() const {
                 return root;
             }
 
@@ -75,10 +82,13 @@ namespace cmp {
                 for (const auto& [token, sv] : this->tokens) {
                     stream << sv;
 
-                    if (token == cmp::Token::END) {
-                        stream << "\n";
-                    } else {
-                        stream << " ";
+                    switch (token) {
+                        case cmp::Token::END:
+                            stream << "\n";
+                            break;
+                        default:
+                            stream << " ";
+                            break;
                     }
                 }
 

@@ -107,7 +107,7 @@ cmp::Statement *root = nullptr;
     bool    boolean;
 }
 
-%type <stm>   ROOT statement ifstm whenstm stmseq stmseqend
+%type <stm>   ROOT statement ifstm whenstm stmseq
 %type <idexp> designator
 %type <exp>   expression expr2 expr3 expr4
 %type <expli> expressionlist argumentlist
@@ -124,11 +124,7 @@ cmp::Statement *root = nullptr;
 %%
 
 ROOT:
-    stmseq {
-        $$ = $1;
-        root = $$;
-        utils::Logger::Success("BISON: done!");
-    }
+    stmseq                      { $$ = $1; root = $$; }
 ;
 
 statement:
@@ -177,8 +173,14 @@ statement:
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinXor, $3)); }
 
     | PRINT LPAREN expressionlist RPAREN
-                                { ppos("stm::PRINT");
+                                { ppos("stm::PRINT(explist)");
                                   $$ = new cmp::PrintStatement($3); }
+    | designator LPAREN expressionlist RPAREN
+                                { ppos("stm::id(explist)");
+                                  if (($1)->id == "print")
+                                       $$ = new cmp::PrintStatement($3);
+                                  else
+                                       $$ = new cmp::FunctionStatement($1, $3); }
 
     | IF expression THEN stmseq ifstm
                                 { ppos("stm::IF");
@@ -210,10 +212,10 @@ statement:
                                 }
 
     | DEF designator LPAREN argumentlist RPAREN stmseq END
-                                { ppos("stm::DEF args");
+                                { ppos("stm::DEF id(args)");
                                   $$ = new cmp::FunctionStatement($2, $4, $6); }
     | DEF designator LPAREN RPAREN stmseq END
-                                { ppos("stm::DEF");
+                                { ppos("stm::DEF id()");
                                   $$ = new cmp::FunctionStatement($2, $5); }
 
     | UNDEF designator          { ppos("stm::UNDEF");
@@ -248,18 +250,14 @@ stmseq:
       SEMICOLON stmseq
                                 { ppos("stmseq::SEMICOLON stm");
                                   $$ = $2; }
-    | statement stmseqend
-                                { ppos("stmseq::stm SEMICOLON stm");
-                                  $$ = new cmp::CompoundStatement($1, $2); }
+    | statement SEMICOLON stmseq
+                                { ppos("stmseq::stm SEMICOLON stmseq");
+                                  $$ = new cmp::CompoundStatement($1, $3); }
+    | statement SEMICOLON
+                                { ppos("stmseq::stm SEMICOLON");
+                                  $$ = $1; }
     | statement                 { ppos("stmseq::stm");
                                   $$ = $1; }
-    ;
-
-stmseqend:
-      SEMICOLON stmseq
-                                { ppos("stmseqend::;stm");
-                                  $$ = $2; }
-    | SEMICOLON                 { $$ = nullptr; ppos("stmseqend::SEMICOLON"); utils::Logger::WriteLn(";"); }
     ;
 
 expression:
@@ -332,7 +330,7 @@ expr4:
                                   $$ = new cmp::UnaryOperandExpression(cmp::UnaryOperand::Minus, $2); }
     | NOT expr4                 { ppos("expr4::NOT");
                                   $$ = new cmp::UnaryOperandExpression(cmp::UnaryOperand::Not, $2); }
-    | BINNOT expr4              { ppos("expr4::NOT");
+    | BINNOT expr4              { ppos("expr4::BINNOT");
                                   $$ = new cmp::UnaryOperandExpression(cmp::UnaryOperand::BinNot, $2); }
 
     | LPAREN expression RPAREN  { ppos("expr4::(exp)");

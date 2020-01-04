@@ -391,7 +391,7 @@ namespace cmp {
 
     class FunctionStatement : public Statement {
         public:
-            Expression *name;
+            IdExpression *name;
             ExpressionList *args;
             Statement *body;
 
@@ -399,25 +399,36 @@ namespace cmp {
              *  \brief  Construct a new Function Statement object
              *          `def id (args) body`
              */
-            FunctionStatement(Expression *name, ExpressionList *args, Statement *body)
+            FunctionStatement(IdExpression *name, ExpressionList *args, Statement *body)
                 : name{name}
                 , args{args}
                 , body{body}
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("FunctionStatement(Expression, ExpressionList, Statement)\n");
+                    utils::Logger::Writef("FunctionStatement(%s, ExpressionList, Statement)\n", this->name->id.c_str());
                 #endif
             }
 
-            FunctionStatement(Expression *name, Statement *body)
+            FunctionStatement(IdExpression *name, Statement *body)
                 : name{name}
                 , args{nullptr}
                 , body{body}
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("FunctionStatement(Expression, Statement)\n");
+                    utils::Logger::Writef("FunctionStatement(%s, Statement)\n", this->name->id.c_str());
+                #endif
+            }
+
+            FunctionStatement(IdExpression *name, ExpressionList *args)
+                : name{name}
+                , args{args}
+                , body{nullptr}
+            {
+                // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Writef("FunctionStatement(%s, ExpressionList)\n", this->name->id.c_str());
                 #endif
             }
 
