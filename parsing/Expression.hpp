@@ -2,6 +2,7 @@
 
 #include <string_view>
 #include <variant>
+#include "../utils/utils_lib/utils_compiler.hpp"
 #include "../utils/utils_lib/utils_exceptions.hpp"
 #include "../utils/utils_lib/utils_traits.hpp"
 #include "../utils/utils_lib/utils_math.hpp"
@@ -282,7 +283,7 @@ namespace cmp {
                             retval = -arg;
                             break;
                         case UnaryOperand::Not:
-                            retval = !arg;
+                            retval = !bool(arg);
                             break;
                         case UnaryOperand::BinNot:
                             if constexpr (std::is_integral_v<std::decay_t<decltype(arg)>>) {
@@ -339,6 +340,9 @@ namespace cmp {
 
                 bool retval = false;
 
+                HEDLEY_DIAGNOSTIC_PUSH
+                #pragma GCC diagnostic ignored "-Wfloat-equal"
+
                 std::visit([&](auto&& argl) {
                     std::visit([&](auto&& argr) {
                         switch (this->comp) {
@@ -361,15 +365,16 @@ namespace cmp {
                                 retval = argl >= argr;
                                 break;
                             case BinCompare::AND:
-                                retval = argl && argr;
+                                retval = bool(argl) && bool(argr);
                                 break;
                             case BinCompare::OR:
-                                retval = argl || argr;
+                                retval = bool(argl) || bool(argr);
                                 break;
                         }
                     }, ret_right);
                 }, ret_left);
 
+                HEDLEY_DIAGNOSTIC_POP
                 return { retval };
             }
     };

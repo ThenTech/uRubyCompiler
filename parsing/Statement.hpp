@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string_view>
+#include "../utils/utils_lib/utils_compiler.hpp"
 #include "../utils/utils_lib/utils_logger.hpp"
 #include "../utils/utils_lib/utils_math.hpp"
 #include "../utils/utils_lib/utils_memory.hpp"
@@ -344,7 +345,7 @@ namespace cmp {
 
             int maxargs() const {
                 return utils::math::max(this->when_true->maxargs(),
-                                        this->next->maxargs());
+                                        this->next ? this->next->maxargs() : 0);
             }
 
             SymbolTable& interpret(SymbolTable& table) const {
@@ -493,7 +494,7 @@ namespace cmp {
             }
 
             int maxargs() const {
-                return this->body->maxargs();
+                return this->body ? this->body->maxargs() : 0;
             }
 
             SymbolTable& interpret(SymbolTable& table) const {

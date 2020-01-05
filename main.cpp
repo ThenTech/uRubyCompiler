@@ -2,7 +2,7 @@
 #include "utils/utils_lib/utils_version.hpp"
 #include "utils/utils_lib/utils_memory.hpp"
 
-static constexpr utils::Version VERSION(0, 3, 1, utils::version::prerelease::none);
+static constexpr utils::Version VERSION(0, 3, 2, utils::version::prerelease::none);
 
 #include "parsing/Expression.hpp"
 #include "parsing/Statement.hpp"
@@ -106,6 +106,8 @@ int main(int argc, char *argv[]) {
 
             utils::Logger::Info("Resulting Symbol Table:");
             utils::Logger::Stream(table);
+
+            utils::Logger::Info("Max args: %d", lex.get_root()->maxargs());
         }
     } CATCH_AND_LOG_ERROR_TRACE()
 
