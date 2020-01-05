@@ -2,7 +2,7 @@
 
 #include "SymbolTable.hpp"
 
-#define CMP_VERBOSE_CTORS 1
+#define CMP_VERBOSE_CTORS 0
 
 namespace cmp {
     class Common {

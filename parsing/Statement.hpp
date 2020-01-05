@@ -1,11 +1,19 @@
 #pragma once
 
 #include <string_view>
+#include "../utils/utils_lib/utils_logger.hpp"
 #include "../utils/utils_lib/utils_math.hpp"
 #include "../utils/utils_lib/utils_memory.hpp"
+#include "../utils/utils_lib/utils_exceptions.hpp"
+#include "../utils/utils_lib/utils_math.hpp"
 #include "fwd.hpp"
+#include "Expression.hpp"
 
 namespace cmp {
+    namespace detail {
+        static constexpr std::string_view CASE_RESULT_NAME = "TEMP_CASE_VALUE";
+    }
+
     class AssignStatement : public Statement {
         public:
             IdExpression *id;
@@ -340,15 +348,60 @@ namespace cmp {
             }
 
             SymbolTable& interpret(SymbolTable& table) const {
-                const auto result = this->condition->interpret(table);
-                const bool cond = std::visit([](auto&& arg) { return bool(arg); }, result);
+                if (this->condition != nullptr) {
+                    const auto case_result = table.get(cmp::detail::CASE_RESULT_NAME);
+                    const auto when_value  = this->condition->interpret(table);
 
-                // TODO WhenStatement::interpret ?
+                    if (case_result.has_value()) {
+                        const auto case_value = case_result.value();
 
-                if (cond) {
+                        if (case_value.index() != when_value.index()) {
+                            std::stringstream ss;
+                            ss << "WhenStatement mismatching types for ";
+                            std::visit([&](auto&& arg) {
+                                ss << "case = <" << utils::print::type2name(arg)
+                                   << ">(" << arg << ")";
+                            }, case_value);
+
+                            ss << " and ";
+                            std::visit([&](auto&& arg) {
+                                ss << "when = <" << utils::print::type2name(arg)
+                                   << ">(" << arg << ")";
+                            }, when_value);
+
+                            throw utils::exceptions::ConversionException(ss.str());
+                        }
+
+                        std::visit([&](auto&& argl) {
+                            std::visit([&](auto&& argr) {
+                                HEDLEY_DIAGNOSTIC_PUSH
+                                #pragma GCC diagnostic ignored "-Wfloat-equal"
+                                bool cond;
+
+                                // It is guaranteed here that the types match,
+                                // so ignore warning, but check for epsilon anyway...
+                                if constexpr (std::is_floating_point_v<std::decay_t<decltype(argl)>>
+                                           && std::is_floating_point_v<std::decay_t<decltype(argr)>>)
+                                {
+                                    cond = utils::math::epsilon_equals(argl, argr);
+                                } else {
+                                    cond = (argl == argr);
+                                }
+                                HEDLEY_DIAGNOSTIC_POP
+
+                                if (cond) {
+                                    this->when_true->interpret(table);
+                                } else if (this->next) {
+                                    this->next->interpret(table);
+                                }
+                            }, when_value);
+                        }, case_value);
+                    } else {
+                        throw utils::exceptions::KeyDoesNotExistException("Symboltable", std::string{cmp::detail::CASE_RESULT_NAME});
+                    }
+                } else {
+                    // case else statement
                     this->when_true->interpret(table);
-                } else if (this->next) {
-                    this->next->interpret(table);
                 }
 
                 return table;
@@ -382,8 +435,9 @@ namespace cmp {
             SymbolTable& interpret(SymbolTable& table) const {
                 const auto result = this->condition->interpret(table);
 
-                // TODO CaseStatement::interpret ?
+                table.insert(cmp::detail::CASE_RESULT_NAME, result);
                 this->when_stm->interpret(table);
+                table.erase(cmp::detail::CASE_RESULT_NAME);
 
                 return table;
             }
@@ -445,6 +499,11 @@ namespace cmp {
             SymbolTable& interpret(SymbolTable& table) const {
                 // TODO FunctionStatement::interpret
                 // Interpret body and set this->name in table to result?
+
+                // Possibly use Function table to set function def here
+                // and FunctionExpression set the parameter values before
+                // interpreting the body and returning the result.
+
                 return table;
             }
     };
@@ -477,7 +536,10 @@ namespace cmp {
             }
 
             SymbolTable& interpret(SymbolTable& table) const {
-                table.erase(this->id->id);
+                // Erase id in Function table
+
+                // table.erase(this->id->id);
+
                 return table;
             }
     };

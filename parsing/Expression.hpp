@@ -106,7 +106,7 @@ namespace cmp {
                 if (const auto val = table.get(this->id)) {
                     return { val.value() };
                 }
-                throw utils::exceptions::KeyDoesNotExistException("Symboltable", "this->id");
+                throw utils::exceptions::KeyDoesNotExistException("Symboltable", this->id);
             }
     };
 
@@ -145,6 +145,7 @@ namespace cmp {
             }
 
             InterpretResult interpret(SymbolTable& table) const {
+                UNUSED(table);
                 return this->value;
             }
     };
@@ -507,9 +508,11 @@ namespace cmp {
             }
 
             InterpretResult interpret(SymbolTable& table) const {
+                utils::Logger::Pause();
                 const auto fn_name = this->name->id;
                 const auto ret = this->exp->interpret(table);
 
+                utils::Logger::Resume();
                 utils::Logger::Stream()
                     << fn_name
                     << "(" << ret << ")\n";

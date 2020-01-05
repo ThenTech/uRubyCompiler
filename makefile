@@ -1,5 +1,6 @@
 # Extra options for encoder compilation
 # e.g.: global defines with -DNAME
+# Set debug for Bison: -DCMP_VERBOSE_CTORS=1
 ECFLAGS = 
 
 # Output folder for binaries

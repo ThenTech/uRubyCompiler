@@ -133,43 +133,43 @@ statement:
                                   $$ = new cmp::AssignStatement($1, $3); }
     | designator PLUSASSIGN expression
                                 { ppos("stm::id PLUSASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::Plus, $3)); }
     | designator MINUSASSIGN expression
                                 { ppos("stm::id MINUSASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::Minus, $3)); }
     | designator MULASSIGN expression
                                 { ppos("stm::id MULASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::Times, $3)); }
     | designator DIVASSIGN expression
                                 { ppos("stm::id DIVASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::Div, $3)); }
     | designator MODASSIGN expression
                                 { ppos("stm::id MODASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::Mod, $3)); }
     | designator ANDASSIGN expression
                                 { ppos("stm::id ANDASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinCompareExpression($1, cmp::BinCompare::AND, $3)); }
     | designator ORASSIGN expression
                                 { ppos("stm::id ORASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinCompareExpression($1, cmp::BinCompare::OR, $3)); }
     | designator BANDASSIGN expression
                                 { ppos("stm::id ANDASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinAnd, $3)); }
     | designator BORASSIGN expression
                                 { ppos("stm::id ORASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinOr, $3)); }
     | designator XORASSIGN expression
                                 { ppos("stm::id XORASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1,
+                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
                                             new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinXor, $3)); }
 
     | PRINT LPAREN expressionlist RPAREN

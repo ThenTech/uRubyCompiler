@@ -126,7 +126,7 @@ enum yytokentype {
     ID = 500,
     INTEGER = 501,
     REAL = 502,
-    BOOLEAN = 503,
+    BOOLEANVAR = 503,
     STRING = 504,
     NIL = 505,
     IF = 506,
@@ -1473,70 +1473,70 @@ yyreduce:
 
         case 4: {
             ppos("stm::id PLUSASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::Plus, (yyvsp[0].exp)));
         }
         break;
 
         case 5: {
             ppos("stm::id MINUSASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::Minus, (yyvsp[0].exp)));
         }
         break;
 
         case 6: {
             ppos("stm::id MULASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::Times, (yyvsp[0].exp)));
         }
         break;
 
         case 7: {
             ppos("stm::id DIVASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::Div, (yyvsp[0].exp)));
         }
         break;
 
         case 8: {
             ppos("stm::id MODASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::Mod, (yyvsp[0].exp)));
         }
         break;
 
         case 9: {
             ppos("stm::id ANDASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinCompareExpression((yyvsp[-2].idexp), cmp::BinCompare::AND, (yyvsp[0].exp)));
         }
         break;
 
         case 10: {
             ppos("stm::id ORASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinCompareExpression((yyvsp[-2].idexp), cmp::BinCompare::OR, (yyvsp[0].exp)));
         }
         break;
 
         case 11: {
             ppos("stm::id ANDASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::BinAnd, (yyvsp[0].exp)));
         }
         break;
 
         case 12: {
             ppos("stm::id ORASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::BinOr, (yyvsp[0].exp)));
         }
         break;
 
         case 13: {
             ppos("stm::id XORASSIGN exp");
-            (yyval.stm) = new cmp::AssignStatement((yyvsp[-2].idexp),
+            (yyval.stm) = new cmp::AssignStatement(new cmp::IdExpression(*(yyvsp[-2].idexp)),
                                                    new cmp::BinOperandExpression((yyvsp[-2].idexp), cmp::BinaryOperand::BinXor, (yyvsp[0].exp)));
         }
         break;
