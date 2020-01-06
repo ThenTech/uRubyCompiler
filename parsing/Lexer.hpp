@@ -62,6 +62,8 @@ namespace cmp {
             int lexical_parse() {
                 const int result = yyparse();
 
+                utils::Logger::WriteLn("");
+
                 if (result > 0) {
                     utils::Logger::Error("[Lexer] Parsing completed with result: %d", result);
                 } else if (this->get_root() == nullptr) {

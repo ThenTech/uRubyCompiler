@@ -55,7 +55,7 @@ identifier    [a-zA-Z_]([a-zA-Z_]|[0-9])*
 numeric       ([0-9]+((\_)?[0-9]+)*)
 real          (((({numeric}+)|({numeric}+\.{numeric}*)|({numeric}*\.{numeric}+))[eE]{1}[\-\+]?{numeric}+)|({numeric}+\.{numeric}*)|({numeric}*\.{numeric}+))
 boolean       (true|false)
-string        \".*\"
+string        \"[^"]*\"
 comment       (\-{2}|\#|\/{2}).*\n
 whitespace    [\t\f\v\ ]+
 linefeed      [\r\n]
@@ -170,8 +170,12 @@ return                 { return ENUM_VAL(cmp::Token::RETURN);    }
 {binnot}               { return ENUM_VAL(cmp::Token::BINNOT);    }
 
 {whitespace}           { /* Do nothing */ }
-{comment}|{linefeed}   { YY_NEWLINE_ACTION
+{comment}              { YY_NEWLINE_ACTION
                          return ENUM_VAL(cmp::Token::SEMICOLON);
+                       }
+{linefeed}             { YY_NEWLINE_ACTION
+                         return ENUM_VAL(cmp::Token::ENDTOKEN);
+                        // return ENUM_VAL(cmp::Token::SEMICOLON);
                        }
 
 .   {

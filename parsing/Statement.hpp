@@ -48,7 +48,7 @@ namespace cmp {
 
             SymbolTable& interpret(SymbolTable& table) const {
                 const auto ret = this->exp->interpret(table);
-                table.insert(this->id->id, ret);
+                table.get_var_table().insert(this->id->id, ret);
                 return table;
             }
     };
@@ -350,7 +350,7 @@ namespace cmp {
 
             SymbolTable& interpret(SymbolTable& table) const {
                 if (this->condition != nullptr) {
-                    const auto case_result = table.get(cmp::detail::CASE_RESULT_NAME);
+                    const auto case_result = table.get_var_table().get(cmp::detail::CASE_RESULT_NAME);
                     const auto when_value  = this->condition->interpret(table);
 
                     if (case_result.has_value()) {
@@ -436,9 +436,9 @@ namespace cmp {
             SymbolTable& interpret(SymbolTable& table) const {
                 const auto result = this->condition->interpret(table);
 
-                table.insert(cmp::detail::CASE_RESULT_NAME, result);
+                table.get_var_table().insert(cmp::detail::CASE_RESULT_NAME, result);
                 this->when_stm->interpret(table);
-                table.erase(cmp::detail::CASE_RESULT_NAME);
+                table.get_var_table().erase(cmp::detail::CASE_RESULT_NAME);
 
                 return table;
             }
@@ -504,6 +504,29 @@ namespace cmp {
                 // Possibly use Function table to set function def here
                 // and FunctionExpression set the parameter values before
                 // interpreting the body and returning the result.
+
+                const int arg_len = this->args ? this->args->maxargs() : 0;
+
+                if (this->body) {
+                    // Declaration
+                    table.get_fun_table().insert(this->name->id, arg_len);
+                } else {
+                    // Call Statement
+                    if (const auto argc = table.get_fun_table().get(this->name->id)) {
+                        std::visit([&](auto&& arg) {
+                            if (arg_len != arg) {
+                                const auto name = utils::string::format("FunctionStatement \"%s\"", this->name->id.c_str());
+                                const auto msg  = utils::string::format("Amount of arguments mismatch! Expected: %d vs given: %d", arg, arg_len);
+                                throw utils::exceptions::Exception(name, msg);
+                            } else {
+                                // Interpret function
+                                // TODO
+                            }
+                        }, argc.value());
+                    } else {
+                        throw utils::exceptions::KeyDoesNotExistException("FunctionTable", this->name->id);
+                    }
+                }
 
                 return table;
             }

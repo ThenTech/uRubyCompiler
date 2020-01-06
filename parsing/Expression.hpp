@@ -104,7 +104,7 @@ namespace cmp {
             }
 
             InterpretResult interpret(SymbolTable& table) const {
-                if (const auto val = table.get(this->id)) {
+                if (const auto val = table.get_var_table().get(this->id)) {
                     return { val.value() };
                 }
                 throw utils::exceptions::KeyDoesNotExistException("Symboltable", this->id);
@@ -189,10 +189,21 @@ namespace cmp {
                 const auto ret_left  = this->left->interpret(table);
                 const auto ret_right = this->right->interpret(table);
 
+                // Throw if binop on bool
+                if (std::holds_alternative<bool>(ret_left)
+                 || std::holds_alternative<bool>(ret_left)) {
+                     const auto frmt = utils::string::format("Tried to perform BinOperandExpression(%s) on booleans!",
+                                                             cmp::detail::to_string(this->op).data());
+                     throw utils::exceptions::ConversionException(frmt);
+                }
+
                 InterpretResult retval;
 
                 std::visit([&](auto&& argl) {
                     std::visit([&](auto&& argr) {
+                        using Tl = std::decay_t<decltype(argl)>;
+                        using Tr = std::decay_t<decltype(argr)>;
+
                         switch (this->op) {
                             case BinaryOperand::Plus:
                                 retval = argl + argr;
@@ -204,11 +215,15 @@ namespace cmp {
                                 retval = argl * argr;
                                 break;
                             case BinaryOperand::Div:
+                                // Throw if div by 0
+                                if (utils::math::epsilon_equals(argr, Tr{0})) {
+                                    throw utils::exceptions::DivideByZeroException("BinOperandExpression");
+                                }
                                 retval = argl / argr;
                                 break;
                             default:
-                                if constexpr (std::is_integral_v<std::decay_t<decltype(argl)>>
-                                           && std::is_integral_v<std::decay_t<decltype(argr)>>)
+                                if constexpr (std::is_integral_v<Tl>
+                                           && std::is_integral_v<Tr>)
                                 {
                                     switch (this->op) {
                                         case BinaryOperand::Mod:
@@ -227,8 +242,10 @@ namespace cmp {
                                             break;
                                     }
                                 } else {
-                                    // WARNING Error types not integral
-                                    retval = 0;
+                                    // Throw if integral op on real
+                                    const auto frmt = utils::string::format("Tried to perform BinOperandExpression(%s) on non-integral type!",
+                                                                            cmp::detail::to_string(this->op).data());
+                                    throw utils::exceptions::ConversionException(frmt);
                                 }
                         }
                     }, ret_right);
@@ -516,6 +533,9 @@ namespace cmp {
                 utils::Logger::Pause();
                 const auto fn_name = this->name->id;
                 const auto ret = this->exp->interpret(table);
+
+                // Remove vars introduced inside function
+                // i.e. override them with old table contents?
 
                 utils::Logger::Resume();
                 utils::Logger::Stream()

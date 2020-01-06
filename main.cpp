@@ -105,7 +105,9 @@ int main(int argc, char *argv[]) {
             lex.get_root()->interpret(table);
 
             utils::Logger::Info("Resulting Symbol Table:");
-            utils::Logger::Stream(table);
+            utils::Logger::Stream(table.get_var_table());
+            utils::Logger::Info("Resulting Function Table:");
+            utils::Logger::Stream(table.get_fun_table());
 
             utils::Logger::Info("Max args: %d", lex.get_root()->maxargs());
         }
