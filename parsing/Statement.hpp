@@ -15,6 +15,39 @@ namespace cmp {
         static constexpr std::string_view CASE_RESULT_NAME = "TEMP_CASE_VALUE";
     }
 
+    class ExpressionStatement : public Statement {
+        public:
+            Expression *exp;
+
+            /**
+             *  \brief  Construct a new Expression Statement object
+             *          `Stm -> Exp`
+             *
+             *  \param  id
+             *  \param  exp
+             */
+            ExpressionStatement(Expression *exp) : exp{exp}
+            {
+                // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Stream("ExpressionStatement(", this->exp, ")\n");
+                #endif
+            }
+
+            ~ExpressionStatement() {
+                utils::memory::delete_var(this->exp);
+            }
+
+            int maxargs() const {
+                return this->exp->maxargs();
+            }
+
+            SymbolTable& interpret(SymbolTable& table) const {
+                const auto ret = this->exp->interpret(table);
+                return table;
+            }
+    };
+
     class AssignStatement : public Statement {
         public:
             IdExpression *id;
@@ -33,7 +66,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("AssignStatement(IdExpression(%s), Expression)\n", id->id.data());
+                    utils::Logger::Stream("ExpressionStatement(IdExpression(", this->id->id, "), ", this->exp, ")\n");
                 #endif
             }
 
@@ -68,7 +101,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("PrintStatement(ExpressionList)\n");
+                    utils::Logger::Stream("PrintStatement(", this->exps, ")\n");
                 #endif
             }
 
@@ -103,7 +136,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("CompoundStatement(Statement, Statement)\n");
+                    utils::Logger::Stream("CompoundStatement(", this->stm1, ", ", this->stm2, ")\n");
                 #endif
             }
 
@@ -143,7 +176,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("IfStatement(Expression, Statement, Statement)\n");
+                    utils::Logger::Stream("IfStatement(", this->condition, ", ", this->stm_true, ", ", this->stm_false, ")\n");
                 #endif
             }
 
@@ -193,7 +226,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("UnlessStatement(Expression, Statement, Statement)\n");
+                    utils::Logger::Stream("UnlessStatement(", this->condition, ", ", this->stm_false, ", ", this->stm_true, ")\n");
                 #endif
             }
 
@@ -241,7 +274,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("WhileStatement(Expression, Statement)\n");
+                    utils::Logger::Stream("WhileStatement(", this->condition, ", ", this->stm, ")\n");
                 #endif
             }
 
@@ -290,7 +323,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("UntilStatement(Expression, Statement)\n");
+                    utils::Logger::Stream("UntilStatement(", this->condition, ", ", this->stm, ")\n");
                 #endif
             }
 
@@ -333,7 +366,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("WhenStatement(Expression, Statement, Statement)\n");
+                    utils::Logger::Stream("WhenStatement(", this->condition, ", ", this->when_true, ", ", this->next, ")\n");
                 #endif
             }
 
@@ -420,7 +453,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("CaseStatement(Expression, WhenStatement)\n");
+                    utils::Logger::Stream("CaseStatement(", this->condition, ", ", this->when_stm, ")\n");
                 #endif
             }
 
@@ -461,7 +494,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("FunctionStatement(%s, ExpressionList, Statement)\n", this->name->id.c_str());
+                    utils::Logger::Stream("FunctionStatement(", this->name->id, ", ", this->args, ", ", this->body, ")\n");
                 #endif
             }
 
@@ -472,7 +505,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("FunctionStatement(%s, Statement)\n", this->name->id.c_str());
+                    utils::Logger::Stream("FunctionStatement(", this->name->id, ", ", this->body, ")\n");
                 #endif
             }
 
@@ -483,7 +516,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("FunctionStatement(%s, ExpressionList)\n", this->name->id.c_str());
+                    utils::Logger::Stream("FunctionStatement(", this->name->id, ", ", this->args, ")\n");
                 #endif
             }
 
@@ -547,7 +580,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("UndefStatement(IdExpression(%s))\n", id->id.data());
+                    utils::Logger::Stream("UndefStatement(IdExpression(", this->id->id, "))\n");
                 #endif
             }
 
@@ -581,7 +614,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("ReturnStatement(Expression)\n");
+                    utils::Logger::Stream("ReturnStatement(", this->value, ")\n");
                 #endif
             }
 

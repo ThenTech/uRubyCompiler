@@ -19,6 +19,10 @@ int yyerror(const char *msg) {
 }
 
 cmp::Statement *root = nullptr;
+struct parse_flags_t {
+    // True if DEF encountered, false after FunctionStatement created.
+    bool saw_defmark;
+} parse_flags{};
 
 %}
 
@@ -111,7 +115,7 @@ cmp::Statement *root = nullptr;
 
 %type <stm>   ROOT statement ifstm whenstm stmseq returnmark
 %type <idexp> designator
-%type <exp>   expression expr2 expr3 expr4
+%type <exp>   expression expr2 expr3 expr4 anyreturnmark
 %type <expli> expressionlist argumentlist
 
 %type <string>  ID STRING
@@ -158,7 +162,7 @@ endmark:
     ;
 
 defmark:
-      DEF                       {}
+      DEF                       { parse_flags.saw_defmark = true; }
     ;
 
 lparenmark:
@@ -173,12 +177,21 @@ rparenmark:
     | RPAREN                    {}
     ;
 
+anyreturnmark:
+      endmarker RETURN expression
+                                { $$ = $3; }
+    | RETURN expression         { $$ = $2; }
+    ;
+
 returnmark:
-      ENDTOKEN RETURN expression
-                                { ppos("stm::RETURN");
-                                  $$ = new cmp::ReturnStatement($3); }
-    | RETURN expression         { ppos("stm::RETURN");
-                                  $$ = new cmp::ReturnStatement($2); }
+    anyreturnmark               { ppos("stm::RETURN");
+                                  if (parse_flags.saw_defmark) {
+                                    $$ = new cmp::ReturnStatement($1);
+                                  } else {
+                                    yyerror("syntax error, RETURN token outside of function block!");
+                                    YYERROR;
+                                  }
+                                }
     ;
 
 whilemark:
@@ -217,51 +230,7 @@ commamark:
     ;
 
 statement:
-      designator ASSIGN expression
-                                { ppos("stm::id ASSIGN exp");
-                                  $$ = new cmp::AssignStatement($1, $3); }
-    | designator PLUSASSIGN expression
-                                { ppos("stm::id PLUSASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Plus, $3)); }
-    | designator MINUSASSIGN expression
-                                { ppos("stm::id MINUSASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Minus, $3)); }
-    | designator MULASSIGN expression
-                                { ppos("stm::id MULASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Times, $3)); }
-    | designator DIVASSIGN expression
-                                { ppos("stm::id DIVASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Div, $3)); }
-    | designator MODASSIGN expression
-                                { ppos("stm::id MODASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Mod, $3)); }
-    | designator ANDASSIGN expression
-                                { ppos("stm::id ANDASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinCompareExpression($1, cmp::BinCompare::AND, $3)); }
-    | designator ORASSIGN expression
-                                { ppos("stm::id ORASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinCompareExpression($1, cmp::BinCompare::OR, $3)); }
-    | designator BANDASSIGN expression
-                                { ppos("stm::id ANDASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinAnd, $3)); }
-    | designator BORASSIGN expression
-                                { ppos("stm::id ORASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinOr, $3)); }
-    | designator XORASSIGN expression
-                                { ppos("stm::id XORASSIGN exp");
-                                  $$ = new cmp::AssignStatement(new cmp::IdExpression(*$1),
-                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinXor, $3)); }
-
-    | PRINT lparenmark expressionlist rparenmark
+      PRINT lparenmark expressionlist rparenmark
                                 { ppos("stm::PRINT(explist)");
                                   $$ = new cmp::PrintStatement($3); }
     | designator lparenmark expressionlist rparenmark
@@ -297,28 +266,21 @@ statement:
 
     | defmark designator lparenmark argumentlist rparenmark stmseq endmark
                                 { ppos("stm::DEF id(args)");
+                                  parse_flags.saw_defmark = false;
                                   $$ = new cmp::FunctionStatement($2, $4, $6); }
     | defmark designator lparenmark rparenmark stmseq endmark
                                 { ppos("stm::DEF id()");
-                                  $$ = new cmp::FunctionStatement($2, $5); }
-
-    | defmark designator lparenmark argumentlist rparenmark stmseq returnmark endmark
-                                { ppos("stm::DEF id(args)");
-                                  $$ = new cmp::FunctionStatement($2, $4, new cmp::CompoundStatement($6, $7)); }
-    | defmark designator lparenmark argumentlist rparenmark returnmark endmark
-                                { ppos("stm::DEF id(args)");
-                                  $$ = new cmp::FunctionStatement($2, $4, $6); }
-    | defmark designator lparenmark rparenmark stmseq returnmark endmark
-                                { ppos("stm::DEF id()");
-                                  $$ = new cmp::FunctionStatement($2, new cmp::CompoundStatement($5, $6)); }
-    | defmark designator lparenmark rparenmark returnmark endmark
-                                { ppos("stm::DEF id()");
+                                  parse_flags.saw_defmark = false;
                                   $$ = new cmp::FunctionStatement($2, $5); }
 
     | UNDEF designator          { ppos("stm::UNDEF");
                                   $$ = new cmp::UndefStatement($2); }
 
+    | returnmark                { ppos("stm::returnmark");
+                                  $$ = $1; }
 
+    | expression                { ppos("stm::expr");
+                                  $$ = new cmp::ExpressionStatement($1); }
     ;
 
 ifstm:
@@ -344,7 +306,7 @@ whenstm:
 
 stmseq:
       endmarker stmseq
-                                { ppos("stmseq::endmarker stm");
+                                { ppos("stmseq::endmarker stmseq");
                                   $$ = $2; }
     | statement endmarker stmseq
                                 { ppos("stmseq::stm endmarker stmseq");
@@ -354,12 +316,15 @@ stmseq:
                                   $$ = $1; }
     | statement                 { ppos("stmseq::stm");
                                   $$ = $1; }
+    | stmseq returnmark         { ppos("stmseq::stmseq returnmark");
+                                  $$ = new cmp::CompoundStatement($1, $2); }
     ;
 
 endmarker:
       ENDTOKEN                  { ppos("endmarker::ENDTOKEN"); }
     | SEMICOLON                 { ppos("endmarker::SEMICOLON"); }
-    | SEMICOLON ENDTOKEN        { ppos("endmarker::SEMICOLON ENDTOKEN"); }
+    | SEMICOLON ENDTOKEN       { ppos("endmarker::SEMICOLON endmarker"); }
+    // | ENDTOKEN endmarker        { ppos("endmarker::ENDTOKEN endmarker"); }
     ;
 
 expression:
@@ -381,6 +346,50 @@ expression:
                                   $$ = new cmp::BinCompareExpression($1, cmp::BinCompare::AND, $3); }
     | expr2 OR expr2            { ppos("expr::OR");
                                   $$ = new cmp::BinCompareExpression($1, cmp::BinCompare::OR,  $3); }
+
+    | designator ASSIGN expression
+                                { ppos("expr::id ASSIGN exp");
+                                  $$ = new cmp::AssignExpression($1, $3); }
+    | designator PLUSASSIGN expression
+                                { ppos("expr::id PLUSASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Plus, $3)); }
+    | designator MINUSASSIGN expression
+                                { ppos("expr::id MINUSASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Minus, $3)); }
+    | designator MULASSIGN expression
+                                { ppos("expr::id MULASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Times, $3)); }
+    | designator DIVASSIGN expression
+                                { ppos("expr::id DIVASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Div, $3)); }
+    | designator MODASSIGN expression
+                                { ppos("expr::id MODASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::Mod, $3)); }
+    | designator ANDASSIGN expression
+                                { ppos("expr::id ANDASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinCompareExpression($1, cmp::BinCompare::AND, $3)); }
+    | designator ORASSIGN expression
+                                { ppos("expr::id ORASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinCompareExpression($1, cmp::BinCompare::OR, $3)); }
+    | designator BANDASSIGN expression
+                                { ppos("expr::id ANDASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinAnd, $3)); }
+    | designator BORASSIGN expression
+                                { ppos("expr::id ORASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinOr, $3)); }
+    | designator XORASSIGN expression
+                                { ppos("expr::id XORASSIGN exp");
+                                  $$ = new cmp::AssignExpression(new cmp::IdExpression(*$1),
+                                            new cmp::BinOperandExpression($1, cmp::BinaryOperand::BinXor, $3)); }
     ;
 
 argumentlist:
@@ -444,6 +453,9 @@ expr4:
     | designator lparenmark expressionlist rparenmark
                                 { ppos("expr4::id(explist)");
                                   $$ = new cmp::FunctionExpression($1, $3); }
+    | designator lparenmark rparenmark
+                                { ppos("expr4::id()");
+                                  $$ = new cmp::FunctionExpression($1); }
 
     | INTEGER                   { ppos("expr4::int");
                                   std::string raw{yytext, size_t(yyleng)};
@@ -453,7 +465,7 @@ expr4:
     | REAL                      { ppos("expr4::real");
                                   std::string raw{yytext, size_t(yyleng)};
                                   utils::string::erase_all(raw, "_");
-                                  const auto val = utils::misc::lexical_cast<double>(raw);
+                                  const double val = utils::misc::lexical_cast<double>(raw);
                                   $$ = new cmp::ValueExpression(val); }
     | BOOLEANVAR                { ppos("expr4::bool");
                                   $$ = new cmp::ValueExpression(yytext[0] == 't'); }

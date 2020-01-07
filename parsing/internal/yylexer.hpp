@@ -1265,7 +1265,7 @@ do_action:  /* This label is used only to access EOF actions. */
                     YY_RULE_SETUP {
                         YY_NEWLINE_ACTION
                         return ENUM_VAL(cmp::Token::ENDTOKEN);
-                        // return ENUM_VAL(cmp::Token::SEMICOLON);
+                        //  return ENUM_VAL(cmp::Token::SEMICOLON);
                     }
                     YY_BREAK
 

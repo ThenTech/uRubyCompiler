@@ -58,7 +58,7 @@ boolean       (true|false)
 string        \"[^"]*\"
 comment       (\-{2}|\#|\/{2}).*\n
 whitespace    [\t\f\v\ ]+
-linefeed      [\r\n]
+linefeed      [\r\n|\n]
 comma         \,
 colon         \:
 semicolon     \;
@@ -175,7 +175,7 @@ return                 { return ENUM_VAL(cmp::Token::RETURN);    }
                        }
 {linefeed}             { YY_NEWLINE_ACTION
                          return ENUM_VAL(cmp::Token::ENDTOKEN);
-                        // return ENUM_VAL(cmp::Token::SEMICOLON);
+                        //  return ENUM_VAL(cmp::Token::SEMICOLON);
                        }
 
 .   {

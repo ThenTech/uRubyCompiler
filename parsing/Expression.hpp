@@ -93,7 +93,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("IdExpression(%s)\n", this->id.data());
+                    utils::Logger::Stream("IdExpression(", this->id, ")\n");
                 #endif
             }
 
@@ -123,19 +123,19 @@ namespace cmp {
              */
             ValueExpression(int32_t val) : value{val} {
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("ValueExpression(%d)\n", val);
+                    utils::Logger::Stream("ValueExpression(", val, ")\n");
                 #endif
             }
 
             ValueExpression(double val) : value{val} {
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("ValueExpression(%f)\n", val);
+                    utils::Logger::Stream("ValueExpression(", val, ")\n");
                 #endif
             }
 
             ValueExpression(bool val) : value{val} {
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("ValueExpression(%s)\n", val ? "true" : "false");
+                    utils::Logger::Stream("ValueExpression(", std::boolalpha, val, ")\n");
                 #endif
             }
 
@@ -148,6 +148,44 @@ namespace cmp {
             InterpretResult interpret(SymbolTable& table) const {
                 UNUSED(table);
                 return this->value;
+            }
+    };
+
+    class AssignExpression : public Expression {
+        public:
+            IdExpression *id;
+            Expression   *exp;
+
+            /**
+             *  \brief  Construct a new Assign Expression object
+             *          `Stm -> id := Exp`
+             *
+             *  \param  id
+             *  \param  exp
+             */
+            AssignExpression(IdExpression *id, Expression *exp)
+                : id{id}
+                , exp{exp}
+            {
+                // Empty
+                #if CMP_VERBOSE_CTORS
+                    utils::Logger::Stream("AssignExpression(IdExpression(", this->id->id, "), ", this->exp, ")\n");
+                #endif
+            }
+
+            ~AssignExpression() {
+                utils::memory::delete_var(this->id);
+                utils::memory::delete_var(this->exp);
+            }
+
+            int maxargs() const {
+                return this->exp->maxargs();
+            }
+
+            InterpretResult interpret(SymbolTable& table) const {
+                const auto ret = this->exp->interpret(table);
+                table.get_var_table().insert(this->id->id, ret);
+                return ret;
             }
     };
 
@@ -171,7 +209,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("BinOperandExpression(Expression, %s, Expression)\n", cmp::detail::to_string(op).data());
+                    utils::Logger::Stream("BinOperandExpression(", this->left, ", ", cmp::detail::to_string(op), ", ", this->right, ")\n");
                 #endif
             }
 
@@ -273,7 +311,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("UnaryOperandExpression(%s, Expression)\n", cmp::detail::to_string(op).data());
+                    utils::Logger::Stream("UnaryOperandExpression(", cmp::detail::to_string(op), ", ", this->expr, ")\n");
                 #endif
             }
 
@@ -337,7 +375,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("BinCompareExpression(Expression, %s, Expression)\n", cmp::detail::to_string(comp).data());
+                    utils::Logger::Stream("BinCompareExpression(", this->left, ", ", cmp::detail::to_string(comp), ", ", this->right, ")\n");
                 #endif
             }
 
@@ -414,7 +452,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("ExpseqExpression(Statement, Expression)\n");
+                    utils::Logger::Stream("ExpseqExpression(", this->stm, ", ", this->exp, ")\n");
                 #endif
             }
 
@@ -451,7 +489,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("PairExpressionList(Expression, ExpressionList)\n");
+                    utils::Logger::Stream("PairExpressionList(", this->head, ", ", this->tail, ")\n");
                 #endif
             }
 
@@ -486,7 +524,7 @@ namespace cmp {
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("LastExpressionList(Expression)\n");
+                    utils::Logger::Stream("LastExpressionList(", this->last, ")\n");
                 #endif
             }
 
@@ -510,13 +548,16 @@ namespace cmp {
             IdExpression   *name;
             ExpressionList *exp;
 
-            FunctionExpression(IdExpression *name, ExpressionList *exp)
+            FunctionExpression(IdExpression *name, ExpressionList *exp = nullptr)
                 : name{name}
                 , exp{exp}
             {
                 // Empty
                 #if CMP_VERBOSE_CTORS
-                    utils::Logger::Writef("FunctionExpression(IdExpression(%s), ExpressionList)\n", name->id.data());
+                    if (this->exp)
+                        utils::Logger::Stream("FunctionExpression(", this->name->id, ", ", this->exp, ")\n");
+                    else
+                        utils::Logger::Stream("FunctionExpression(", this->name->id, ")\n");
                 #endif
             }
 
@@ -526,21 +567,45 @@ namespace cmp {
             }
 
             int maxargs() const {
-                return this->exp->maxargs();
+                return this->exp ? this->exp->maxargs() : 0;
             }
 
             InterpretResult interpret(SymbolTable& table) const {
-                utils::Logger::Pause();
                 const auto fn_name = this->name->id;
-                const auto ret = this->exp->interpret(table);
+                InterpretResult ret{};
 
-                // Remove vars introduced inside function
-                // i.e. override them with old table contents?
+                const int arg_len = this->exp ? this->exp->maxargs() : 0;
 
-                utils::Logger::Resume();
-                utils::Logger::Stream()
-                    << fn_name
-                    << "(" << ret << ")\n";
+                if (const auto argc = table.get_fun_table().get(this->name->id)) {
+                    // Remove vars introduced inside function
+                    // i.e. override them with old table contents?
+                    // interpret existing func and return result
+
+                    std::visit([&](auto&& arg) {
+                        if (arg_len != arg) {
+                            const auto name = utils::string::format("FunctionExpression \"%s\"", this->name->id.c_str());
+                            const auto msg  = utils::string::format("Amount of arguments mismatch! Expected: %d vs given: %d", arg, arg_len);
+                            throw utils::exceptions::Exception(name, msg);
+                        } else {
+                            // Interpret function
+                            // TODO
+                            if (this->exp) {
+                                // Has args
+                                utils::Logger::Pause();
+                                ret = this->exp->interpret(table);
+                                utils::Logger::Resume();
+                                utils::Logger::Stream()
+                                    << fn_name
+                                    << "(" << ret << ")\n";
+                            } else {
+                                utils::Logger::Stream()
+                                    << fn_name << "()\n";
+                            }
+                        }
+                    }, argc.value());
+                } else {
+                    throw utils::exceptions::KeyDoesNotExistException("FunctionTable", fn_name);
+                }
 
                 return ret;
             }

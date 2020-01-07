@@ -12,21 +12,25 @@ Terminals unused in grammar
     ARRAY
 
 
-State 7 conflicts: 1 shift/reduce
-State 19 conflicts: 1 shift/reduce
-State 25 conflicts: 1 shift/reduce
-State 46 conflicts: 1 shift/reduce
-State 61 conflicts: 1 shift/reduce
-State 70 conflicts: 1 shift/reduce
-State 91 conflicts: 1 shift/reduce
-State 115 conflicts: 1 shift/reduce
-State 122 conflicts: 1 shift/reduce
-State 143 conflicts: 1 shift/reduce
-State 145 conflicts: 1 shift/reduce
-State 156 conflicts: 1 shift/reduce
+State 11 conflicts: 1 shift/reduce
+State 12 conflicts: 1 shift/reduce
+State 31 conflicts: 2 shift/reduce
+State 55 conflicts: 1 shift/reduce
+State 60 conflicts: 3 shift/reduce
+State 63 conflicts: 3 shift/reduce
+State 93 conflicts: 1 shift/reduce
+State 95 conflicts: 1 shift/reduce
+State 103 conflicts: 1 shift/reduce
+State 106 conflicts: 1 shift/reduce
+State 114 conflicts: 3 shift/reduce
+State 115 conflicts: 8 reduce/reduce
+State 149 conflicts: 1 shift/reduce
+State 153 conflicts: 1 shift/reduce
+State 159 conflicts: 1 shift/reduce
 State 161 conflicts: 1 shift/reduce
-State 186 conflicts: 1 reduce/reduce
-State 189 conflicts: 1 shift/reduce
+State 167 conflicts: 9 reduce/reduce
+State 172 conflicts: 1 shift/reduce
+State 195 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -63,83 +67,84 @@ Grammar
    20           | ENDTOKEN RPAREN
    21           | RPAREN
 
-   22 returnmark: ENDTOKEN RETURN expression
-   23           | RETURN expression
+   22 anyreturnmark: endmarker RETURN expression
+   23              | RETURN expression
 
-   24 whilemark: WHILE
+   24 returnmark: anyreturnmark
 
-   25 unlessmark: UNLESS
+   25 whilemark: WHILE
 
-   26 domark: ENDTOKEN DO ENDTOKEN
-   27       | DO ENDTOKEN
-   28       | ENDTOKEN DO
-   29       | DO
+   26 unlessmark: UNLESS
 
-   30 untillmark: UNTIL
+   27 domark: ENDTOKEN DO ENDTOKEN
+   28       | DO ENDTOKEN
+   29       | ENDTOKEN DO
+   30       | DO
 
-   31 casemark: CASE
+   31 untillmark: UNTIL
 
-   32 whenmark: ENDTOKEN WHEN
-   33         | WHEN
+   32 casemark: CASE
 
-   34 commamark: ENDTOKEN COMMA ENDTOKEN
-   35          | COMMA ENDTOKEN
-   36          | ENDTOKEN COMMA
-   37          | COMMA
+   33 whenmark: ENDTOKEN WHEN
+   34         | WHEN
 
-   38 statement: designator ASSIGN expression
-   39          | designator PLUSASSIGN expression
-   40          | designator MINUSASSIGN expression
-   41          | designator MULASSIGN expression
-   42          | designator DIVASSIGN expression
-   43          | designator MODASSIGN expression
-   44          | designator ANDASSIGN expression
-   45          | designator ORASSIGN expression
-   46          | designator BANDASSIGN expression
-   47          | designator BORASSIGN expression
-   48          | designator XORASSIGN expression
-   49          | PRINT lparenmark expressionlist rparenmark
-   50          | designator lparenmark expressionlist rparenmark
-   51          | ifmark expression thenmark stmseq ifstm
-   52          | whilemark expression domark stmseq endmark
-   53          | untillmark expression domark stmseq endmark
-   54          | unlessmark expression thenmark stmseq endmark
-   55          | unlessmark expression thenmark stmseq elsemark stmseq endmark
-   56          | casemark expression whenmark expression thenmark stmseq whenstm
-   57          | defmark designator lparenmark argumentlist rparenmark stmseq endmark
-   58          | defmark designator lparenmark rparenmark stmseq endmark
-   59          | defmark designator lparenmark argumentlist rparenmark stmseq returnmark endmark
-   60          | defmark designator lparenmark argumentlist rparenmark returnmark endmark
-   61          | defmark designator lparenmark rparenmark stmseq returnmark endmark
-   62          | defmark designator lparenmark rparenmark returnmark endmark
-   63          | UNDEF designator
+   35 commamark: ENDTOKEN COMMA ENDTOKEN
+   36          | COMMA ENDTOKEN
+   37          | ENDTOKEN COMMA
+   38          | COMMA
 
-   64 ifstm: elifmark expression thenmark stmseq ifstm
-   65      | elsemark stmseq endmark
-   66      | endmark
+   39 statement: PRINT lparenmark expressionlist rparenmark
+   40          | designator lparenmark expressionlist rparenmark
+   41          | ifmark expression thenmark stmseq ifstm
+   42          | whilemark expression domark stmseq endmark
+   43          | untillmark expression domark stmseq endmark
+   44          | unlessmark expression thenmark stmseq endmark
+   45          | unlessmark expression thenmark stmseq elsemark stmseq endmark
+   46          | casemark expression whenmark expression thenmark stmseq whenstm
+   47          | defmark designator lparenmark argumentlist rparenmark stmseq endmark
+   48          | defmark designator lparenmark rparenmark stmseq endmark
+   49          | UNDEF designator
+   50          | returnmark
+   51          | expression
 
-   67 whenstm: whenmark expression thenmark stmseq whenstm
-   68        | elsemark stmseq endmark
-   69        | endmark
+   52 ifstm: elifmark expression thenmark stmseq ifstm
+   53      | elsemark stmseq endmark
+   54      | endmark
 
-   70 stmseq: endmarker stmseq
-   71       | statement endmarker stmseq
-   72       | statement endmarker
-   73       | statement
+   55 whenstm: whenmark expression thenmark stmseq whenstm
+   56        | elsemark stmseq endmark
+   57        | endmark
 
-   74 endmarker: ENDTOKEN
-   75          | SEMICOLON
-   76          | SEMICOLON ENDTOKEN
+   58 stmseq: endmarker stmseq
+   59       | statement endmarker stmseq
+   60       | statement endmarker
+   61       | statement
+   62       | stmseq returnmark
 
-   77 expression: expr2
-   78           | expr2 EQ expr2
-   79           | expr2 NEQ expr2
-   80           | expr2 LT expr2
-   81           | expr2 LE expr2
-   82           | expr2 GT expr2
-   83           | expr2 GE expr2
-   84           | expr2 AND expr2
-   85           | expr2 OR expr2
+   63 endmarker: ENDTOKEN
+   64          | SEMICOLON
+   65          | SEMICOLON ENDTOKEN
+
+   66 expression: expr2
+   67           | expr2 EQ expr2
+   68           | expr2 NEQ expr2
+   69           | expr2 LT expr2
+   70           | expr2 LE expr2
+   71           | expr2 GT expr2
+   72           | expr2 GE expr2
+   73           | expr2 AND expr2
+   74           | expr2 OR expr2
+   75           | designator ASSIGN expression
+   76           | designator PLUSASSIGN expression
+   77           | designator MINUSASSIGN expression
+   78           | designator MULASSIGN expression
+   79           | designator DIVASSIGN expression
+   80           | designator MODASSIGN expression
+   81           | designator ANDASSIGN expression
+   82           | designator ORASSIGN expression
+   83           | designator BANDASSIGN expression
+   84           | designator BORASSIGN expression
+   85           | designator XORASSIGN expression
 
    86 argumentlist: designator commamark argumentlist
    87             | designator
@@ -166,39 +171,40 @@ Grammar
   104      | lparenmark expression rparenmark
   105      | lparenmark statement commamark expression rparenmark
   106      | designator lparenmark expressionlist rparenmark
-  107      | INTEGER
-  108      | REAL
-  109      | BOOLEANVAR
-  110      | designator
+  107      | designator lparenmark rparenmark
+  108      | INTEGER
+  109      | REAL
+  110      | BOOLEANVAR
+  111      | designator
 
-  111 designator: ID
+  112 designator: ID
 
 
 Terminals, with rules where they appear
 
     $end (0) 0
     error (256)
-    ID <string> (500) 111
-    INTEGER <integer> (501) 107
-    REAL <real> (502) 108
-    BOOLEANVAR <boolean> (503) 109
+    ID <string> (500) 112
+    INTEGER <integer> (501) 108
+    REAL <real> (502) 109
+    BOOLEANVAR <boolean> (503) 110
     STRING <string> (504)
     NIL (505)
     IF (506) 2
     THEN (507) 5 6 7 8
     ELSIF (508) 3 4
     ELSE (509) 9 10 11 12
-    WHILE (510) 24
-    UNTIL (511) 30
-    DO (512) 26 27 28 29
-    UNLESS (513) 25
-    WHEN (514) 32 33
-    CASE (515) 31
+    WHILE (510) 25
+    UNTIL (511) 31
+    DO (512) 27 28 29 30
+    UNLESS (513) 26
+    WHEN (514) 33 34
+    CASE (515) 32
     END (516) 13 14
     RETURN (517) 22 23
-    COMMA (518) 34 35 36 37
+    COMMA (518) 35 36 37 38
     COLON (519)
-    SEMICOLON (520) 75 76
+    SEMICOLON (520) 64 65
     DOT (521)
     LPAREN (522) 16 17
     RPAREN (523) 18 19 20 21
@@ -206,17 +212,17 @@ Terminals, with rules where they appear
     RBRACK (525)
     LBRACE (526)
     RBRACE (527)
-    ASSIGN (528) 38
-    PLUSASSIGN (529) 39
-    MINUSASSIGN (530) 40
-    MULASSIGN (531) 41
-    DIVASSIGN (532) 42
-    MODASSIGN (533) 43
-    ANDASSIGN (534) 44
-    ORASSIGN (535) 45
-    BANDASSIGN (536) 46
-    BORASSIGN (537) 47
-    XORASSIGN (538) 48
+    ASSIGN (528) 75
+    PLUSASSIGN (529) 76
+    MINUSASSIGN (530) 77
+    MULASSIGN (531) 78
+    DIVASSIGN (532) 79
+    MODASSIGN (533) 80
+    ANDASSIGN (534) 81
+    ORASSIGN (535) 82
+    BANDASSIGN (536) 83
+    BORASSIGN (537) 84
+    XORASSIGN (538) 85
     PLUS (539) 91 100
     MINUS (540) 92 101
     TIMES (541) 94
@@ -227,20 +233,20 @@ Terminals, with rules where they appear
     BINOR (546) 98
     BINXOR (547) 99
     BINNOT (548) 103
-    EQ (549) 78
-    NEQ (550) 79
-    LT (551) 80
-    LE (552) 81
-    GT (553) 82
-    GE (554) 83
-    AND (555) 84
-    OR (556) 85
+    EQ (549) 67
+    NEQ (550) 68
+    LT (551) 69
+    LE (552) 70
+    GT (553) 71
+    GE (554) 72
+    AND (555) 73
+    OR (556) 74
     NOT (557) 102
     ARRAY (558)
     DEF (559) 15
-    UNDEF (560) 63
-    PRINT (561) 49
-    ENDTOKEN (562) 3 5 6 7 9 10 11 13 16 18 19 20 22 26 27 28 32 34 35 36 74 76
+    UNDEF (560) 49
+    PRINT (561) 39
+    ENDTOKEN (562) 3 5 6 7 9 10 11 13 16 18 19 20 27 28 29 33 35 36 37 63 65
 
 
 Nonterminals, with rules where they appear
@@ -252,646 +258,652 @@ Nonterminals, with rules where they appear
         on right: 0
     ifmark (68)
         on left: 2
-        on right: 51
+        on right: 41
     elifmark (69)
         on left: 3 4
-        on right: 64
+        on right: 52
     thenmark (70)
         on left: 5 6 7 8
-        on right: 51 54 55 56 64 67
+        on right: 41 44 45 46 52 55
     elsemark (71)
         on left: 9 10 11 12
-        on right: 55 65 68
+        on right: 45 53 56
     endmark (72)
         on left: 13 14
-        on right: 52 53 54 55 57 58 59 60 61 62 65 66 68 69
+        on right: 42 43 44 45 47 48 53 54 56 57
     defmark (73)
         on left: 15
-        on right: 57 58 59 60 61 62
+        on right: 47 48
     lparenmark (74)
         on left: 16 17
-        on right: 49 50 57 58 59 60 61 62 104 105 106
+        on right: 39 40 47 48 104 105 106 107
     rparenmark (75)
         on left: 18 19 20 21
-        on right: 49 50 57 58 59 60 61 62 104 105 106
-    returnmark <stm> (76)
+        on right: 39 40 47 48 104 105 106 107
+    anyreturnmark <exp> (76)
         on left: 22 23
-        on right: 59 60 61 62
-    whilemark (77)
+        on right: 24
+    returnmark <stm> (77)
         on left: 24
-        on right: 52
-    unlessmark (78)
+        on right: 50 62
+    whilemark (78)
         on left: 25
-        on right: 54 55
-    domark (79)
-        on left: 26 27 28 29
-        on right: 52 53
-    untillmark (80)
-        on left: 30
-        on right: 53
-    casemark (81)
+        on right: 42
+    unlessmark (79)
+        on left: 26
+        on right: 44 45
+    domark (80)
+        on left: 27 28 29 30
+        on right: 42 43
+    untillmark (81)
         on left: 31
-        on right: 56
-    whenmark (82)
-        on left: 32 33
-        on right: 56 67
-    commamark (83)
-        on left: 34 35 36 37
+        on right: 43
+    casemark (82)
+        on left: 32
+        on right: 46
+    whenmark (83)
+        on left: 33 34
+        on right: 46 55
+    commamark (84)
+        on left: 35 36 37 38
         on right: 86 88 105
-    statement <stm> (84)
-        on left: 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63
-        on right: 71 72 73 105
-    ifstm <stm> (85)
-        on left: 64 65 66
-        on right: 51 64
-    whenstm <stm> (86)
-        on left: 67 68 69
-        on right: 56 67
-    stmseq <stm> (87)
-        on left: 70 71 72 73
-        on right: 1 51 52 53 54 55 56 57 58 59 61 64 65 67 68 70 71
-    endmarker (88)
-        on left: 74 75 76
-        on right: 70 71 72
-    expression <exp> (89)
-        on left: 77 78 79 80 81 82 83 84 85
-        on right: 22 23 38 39 40 41 42 43 44 45 46 47 48 51 52 53 54 55 56 64 67 88 89 104 105
-    argumentlist <expli> (90)
+    statement <stm> (85)
+        on left: 39 40 41 42 43 44 45 46 47 48 49 50 51
+        on right: 59 60 61 105
+    ifstm <stm> (86)
+        on left: 52 53 54
+        on right: 41 52
+    whenstm <stm> (87)
+        on left: 55 56 57
+        on right: 46 55
+    stmseq <stm> (88)
+        on left: 58 59 60 61 62
+        on right: 1 41 42 43 44 45 46 47 48 52 53 55 56 58 59 62
+    endmarker (89)
+        on left: 63 64 65
+        on right: 22 58 59 60
+    expression <exp> (90)
+        on left: 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85
+        on right: 22 23 41 42 43 44 45 46 51 52 55 75 76 77 78 79 80 81 82 83 84 85 88 89 104 105
+    argumentlist <expli> (91)
         on left: 86 87
-        on right: 57 59 60 86
-    expressionlist <expli> (91)
+        on right: 47 86
+    expressionlist <expli> (92)
         on left: 88 89
-        on right: 49 50 88 106
-    expr2 <exp> (92)
+        on right: 39 40 88 106
+    expr2 <exp> (93)
         on left: 90 91 92
-        on right: 77 78 79 80 81 82 83 84 85 91 92
-    expr3 <exp> (93)
+        on right: 66 67 68 69 70 71 72 73 74 91 92
+    expr3 <exp> (94)
         on left: 93 94 95 96 97 98 99
         on right: 90 91 92 94 95 96 97 98 99
-    expr4 <exp> (94)
-        on left: 100 101 102 103 104 105 106 107 108 109 110
+    expr4 <exp> (95)
+        on left: 100 101 102 103 104 105 106 107 108 109 110 111
         on right: 93 94 95 96 97 98 99 100 101 102 103
-    designator <idexp> (95)
-        on left: 111
-        on right: 38 39 40 41 42 43 44 45 46 47 48 50 57 58 59 60 61 62 63 86 87 106 110
+    designator <idexp> (96)
+        on left: 112
+        on right: 40 47 48 49 75 76 77 78 79 80 81 82 83 84 85 86 87 106 107 111
 
 
 State 0
 
     0 $accept: . ROOT $end
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
 
-    ROOT        go to state 12
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 20
-    endmarker   go to state 21
-    designator  go to state 22
+    ROOT           go to state 21
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 32
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
 State 1
 
-  111 designator: ID .
+  112 designator: ID .
 
-    $default  reduce using rule 111 (designator)
+    $default  reduce using rule 112 (designator)
 
 
 State 2
+
+  108 expr4: INTEGER .
+
+    $default  reduce using rule 108 (expr4)
+
+
+State 3
+
+  109 expr4: REAL .
+
+    $default  reduce using rule 109 (expr4)
+
+
+State 4
+
+  110 expr4: BOOLEANVAR .
+
+    $default  reduce using rule 110 (expr4)
+
+
+State 5
 
     2 ifmark: IF .
 
     $default  reduce using rule 2 (ifmark)
 
 
-State 3
-
-   24 whilemark: WHILE .
-
-    $default  reduce using rule 24 (whilemark)
-
-
-State 4
-
-   30 untillmark: UNTIL .
-
-    $default  reduce using rule 30 (untillmark)
-
-
-State 5
-
-   25 unlessmark: UNLESS .
-
-    $default  reduce using rule 25 (unlessmark)
-
-
 State 6
 
-   31 casemark: CASE .
+   25 whilemark: WHILE .
 
-    $default  reduce using rule 31 (casemark)
+    $default  reduce using rule 25 (whilemark)
 
 
 State 7
 
-   75 endmarker: SEMICOLON .
-   76          | SEMICOLON . ENDTOKEN
+   31 untillmark: UNTIL .
 
-    ENDTOKEN  shift, and go to state 23
-
-    ENDTOKEN  [reduce using rule 75 (endmarker)]
-    $default  reduce using rule 75 (endmarker)
+    $default  reduce using rule 31 (untillmark)
 
 
 State 8
+
+   26 unlessmark: UNLESS .
+
+    $default  reduce using rule 26 (unlessmark)
+
+
+State 9
+
+   32 casemark: CASE .
+
+    $default  reduce using rule 32 (casemark)
+
+
+State 10
+
+   23 anyreturnmark: RETURN . expression
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 39
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 11
+
+   64 endmarker: SEMICOLON .
+   65          | SEMICOLON . ENDTOKEN
+
+    ENDTOKEN  shift, and go to state 41
+
+    ENDTOKEN  [reduce using rule 64 (endmarker)]
+    $default  reduce using rule 64 (endmarker)
+
+
+State 12
+
+   16 lparenmark: LPAREN . ENDTOKEN
+   17           | LPAREN .
+
+    ENDTOKEN  shift, and go to state 42
+
+    ENDTOKEN  [reduce using rule 17 (lparenmark)]
+    $default  reduce using rule 17 (lparenmark)
+
+
+State 13
+
+  100 expr4: PLUS . expr4
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr4       go to state 43
+    designator  go to state 44
+
+
+State 14
+
+  101 expr4: MINUS . expr4
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr4       go to state 45
+    designator  go to state 44
+
+
+State 15
+
+  103 expr4: BINNOT . expr4
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr4       go to state 46
+    designator  go to state 44
+
+
+State 16
+
+  102 expr4: NOT . expr4
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr4       go to state 47
+    designator  go to state 44
+
+
+State 17
 
    15 defmark: DEF .
 
     $default  reduce using rule 15 (defmark)
 
 
-State 9
-
-   63 statement: UNDEF . designator
-
-    ID  shift, and go to state 1
-
-    designator  go to state 24
-
-
-State 10
-
-   49 statement: PRINT . lparenmark expressionlist rparenmark
-
-    LPAREN  shift, and go to state 25
-
-    lparenmark  go to state 26
-
-
-State 11
-
-   74 endmarker: ENDTOKEN .
-
-    $default  reduce using rule 74 (endmarker)
-
-
-State 12
-
-    0 $accept: ROOT . $end
-
-    $end  shift, and go to state 27
-
-
-State 13
-
-   51 statement: ifmark . expression thenmark stmseq ifstm
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 36
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 14
-
-   57 statement: defmark . designator lparenmark argumentlist rparenmark stmseq endmark
-   58          | defmark . designator lparenmark rparenmark stmseq endmark
-   59          | defmark . designator lparenmark argumentlist rparenmark stmseq returnmark endmark
-   60          | defmark . designator lparenmark argumentlist rparenmark returnmark endmark
-   61          | defmark . designator lparenmark rparenmark stmseq returnmark endmark
-   62          | defmark . designator lparenmark rparenmark returnmark endmark
-
-    ID  shift, and go to state 1
-
-    designator  go to state 41
-
-
-State 15
-
-   52 statement: whilemark . expression domark stmseq endmark
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 42
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 16
-
-   54 statement: unlessmark . expression thenmark stmseq endmark
-   55          | unlessmark . expression thenmark stmseq elsemark stmseq endmark
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 43
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 17
-
-   53 statement: untillmark . expression domark stmseq endmark
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 44
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
 State 18
 
-   56 statement: casemark . expression whenmark expression thenmark stmseq whenstm
+   49 statement: UNDEF . designator
 
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    ID  shift, and go to state 1
 
-    lparenmark  go to state 35
-    expression  go to state 45
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    designator  go to state 48
 
 
 State 19
 
-   71 stmseq: statement . endmarker stmseq
-   72       | statement . endmarker
-   73       | statement .
+   39 statement: PRINT . lparenmark expressionlist rparenmark
 
-    SEMICOLON  shift, and go to state 7
-    ENDTOKEN   shift, and go to state 11
+    LPAREN  shift, and go to state 12
 
-    ENDTOKEN  [reduce using rule 73 (stmseq)]
-    $default  reduce using rule 73 (stmseq)
-
-    endmarker  go to state 46
+    lparenmark  go to state 49
 
 
 State 20
 
-    1 ROOT: stmseq .
+   63 endmarker: ENDTOKEN .
 
-    $default  reduce using rule 1 (ROOT)
+    $default  reduce using rule 63 (endmarker)
 
 
 State 21
 
-   70 stmseq: endmarker . stmseq
+    0 $accept: ROOT . $end
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 47
-    endmarker   go to state 21
-    designator  go to state 22
+    $end  shift, and go to state 50
 
 
 State 22
 
-   38 statement: designator . ASSIGN expression
-   39          | designator . PLUSASSIGN expression
-   40          | designator . MINUSASSIGN expression
-   41          | designator . MULASSIGN expression
-   42          | designator . DIVASSIGN expression
-   43          | designator . MODASSIGN expression
-   44          | designator . ANDASSIGN expression
-   45          | designator . ORASSIGN expression
-   46          | designator . BANDASSIGN expression
-   47          | designator . BORASSIGN expression
-   48          | designator . XORASSIGN expression
-   50          | designator . lparenmark expressionlist rparenmark
+   41 statement: ifmark . expression thenmark stmseq ifstm
 
-    LPAREN       shift, and go to state 25
-    ASSIGN       shift, and go to state 48
-    PLUSASSIGN   shift, and go to state 49
-    MINUSASSIGN  shift, and go to state 50
-    MULASSIGN    shift, and go to state 51
-    DIVASSIGN    shift, and go to state 52
-    MODASSIGN    shift, and go to state 53
-    ANDASSIGN    shift, and go to state 54
-    ORASSIGN     shift, and go to state 55
-    BANDASSIGN   shift, and go to state 56
-    BORASSIGN    shift, and go to state 57
-    XORASSIGN    shift, and go to state 58
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 59
+    lparenmark  go to state 24
+    expression  go to state 51
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
 
 
 State 23
 
-   76 endmarker: SEMICOLON ENDTOKEN .
+   47 statement: defmark . designator lparenmark argumentlist rparenmark stmseq endmark
+   48          | defmark . designator lparenmark rparenmark stmseq endmark
 
-    $default  reduce using rule 76 (endmarker)
+    ID  shift, and go to state 1
+
+    designator  go to state 52
 
 
 State 24
-
-   63 statement: UNDEF designator .
-
-    $default  reduce using rule 63 (statement)
-
-
-State 25
-
-   16 lparenmark: LPAREN . ENDTOKEN
-   17           | LPAREN .
-
-    ENDTOKEN  shift, and go to state 60
-
-    ENDTOKEN  [reduce using rule 17 (lparenmark)]
-    $default  reduce using rule 17 (lparenmark)
-
-
-State 26
-
-   49 statement: PRINT lparenmark . expressionlist rparenmark
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark      go to state 35
-    expression      go to state 61
-    expressionlist  go to state 62
-    expr2           go to state 37
-    expr3           go to state 38
-    expr4           go to state 39
-    designator      go to state 40
-
-
-State 27
-
-    0 $accept: ROOT $end .
-
-    $default  accept
-
-
-State 28
-
-  107 expr4: INTEGER .
-
-    $default  reduce using rule 107 (expr4)
-
-
-State 29
-
-  108 expr4: REAL .
-
-    $default  reduce using rule 108 (expr4)
-
-
-State 30
-
-  109 expr4: BOOLEANVAR .
-
-    $default  reduce using rule 109 (expr4)
-
-
-State 31
-
-  100 expr4: PLUS . expr4
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expr4       go to state 63
-    designator  go to state 40
-
-
-State 32
-
-  101 expr4: MINUS . expr4
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expr4       go to state 64
-    designator  go to state 40
-
-
-State 33
-
-  103 expr4: BINNOT . expr4
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expr4       go to state 65
-    designator  go to state 40
-
-
-State 34
-
-  102 expr4: NOT . expr4
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expr4       go to state 66
-    designator  go to state 40
-
-
-State 35
 
   104 expr4: lparenmark . expression rparenmark
   105      | lparenmark . statement commamark expression rparenmark
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    IF          shift, and go to state 2
-    WHILE       shift, and go to state 3
-    UNTIL       shift, and go to state 4
-    UNLESS      shift, and go to state 5
-    CASE        shift, and go to state 6
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-    DEF         shift, and go to state 8
-    UNDEF       shift, and go to state 9
-    PRINT       shift, and go to state 10
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    lparenmark  go to state 35
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 67
-    expression  go to state 68
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 69
-
-
-State 36
-
-   51 statement: ifmark expression . thenmark stmseq ifstm
-
-    THEN      shift, and go to state 70
-    ENDTOKEN  shift, and go to state 71
-
-    thenmark  go to state 72
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 53
+    endmarker      go to state 54
+    expression     go to state 55
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
-State 37
+State 25
 
-   77 expression: expr2 .
-   78           | expr2 . EQ expr2
-   79           | expr2 . NEQ expr2
-   80           | expr2 . LT expr2
-   81           | expr2 . LE expr2
-   82           | expr2 . GT expr2
-   83           | expr2 . GE expr2
-   84           | expr2 . AND expr2
-   85           | expr2 . OR expr2
+   24 returnmark: anyreturnmark .
+
+    $default  reduce using rule 24 (returnmark)
+
+
+State 26
+
+   50 statement: returnmark .
+
+    $default  reduce using rule 50 (statement)
+
+
+State 27
+
+   42 statement: whilemark . expression domark stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 56
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 28
+
+   44 statement: unlessmark . expression thenmark stmseq endmark
+   45          | unlessmark . expression thenmark stmseq elsemark stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 57
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 29
+
+   43 statement: untillmark . expression domark stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 58
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 30
+
+   46 statement: casemark . expression whenmark expression thenmark stmseq whenstm
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 59
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 31
+
+   59 stmseq: statement . endmarker stmseq
+   60       | statement . endmarker
+   61       | statement .
+
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 20
+
+    SEMICOLON  [reduce using rule 61 (stmseq)]
+    ENDTOKEN   [reduce using rule 61 (stmseq)]
+    $default   reduce using rule 61 (stmseq)
+
+    endmarker  go to state 60
+
+
+State 32
+
+    1 ROOT: stmseq .
+   62 stmseq: stmseq . returnmark
+
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 20
+
+    $default  reduce using rule 1 (ROOT)
+
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
+
+
+State 33
+
+   22 anyreturnmark: endmarker . RETURN expression
+   58 stmseq: endmarker . stmseq
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 62
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 63
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 34
+
+   51 statement: expression .
+
+    $default  reduce using rule 51 (statement)
+
+
+State 35
+
+   66 expression: expr2 .
+   67           | expr2 . EQ expr2
+   68           | expr2 . NEQ expr2
+   69           | expr2 . LT expr2
+   70           | expr2 . LE expr2
+   71           | expr2 . GT expr2
+   72           | expr2 . GE expr2
+   73           | expr2 . AND expr2
+   74           | expr2 . OR expr2
    91 expr2: expr2 . PLUS expr3
    92      | expr2 . MINUS expr3
 
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-    EQ     shift, and go to state 75
-    NEQ    shift, and go to state 76
-    LT     shift, and go to state 77
-    LE     shift, and go to state 78
-    GT     shift, and go to state 79
-    GE     shift, and go to state 80
-    AND    shift, and go to state 81
-    OR     shift, and go to state 82
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+    EQ     shift, and go to state 66
+    NEQ    shift, and go to state 67
+    LT     shift, and go to state 68
+    LE     shift, and go to state 69
+    GT     shift, and go to state 70
+    GE     shift, and go to state 71
+    AND    shift, and go to state 72
+    OR     shift, and go to state 73
 
-    $default  reduce using rule 77 (expression)
+    $default  reduce using rule 66 (expression)
 
 
-State 38
+State 36
 
    90 expr2: expr3 .
    94 expr3: expr3 . TIMES expr4
@@ -901,1306 +913,1424 @@ State 38
    98      | expr3 . BINOR expr4
    99      | expr3 . BINXOR expr4
 
-    TIMES   shift, and go to state 83
-    DIVIDE  shift, and go to state 84
-    MOD     shift, and go to state 85
-    BINAND  shift, and go to state 86
-    BINOR   shift, and go to state 87
-    BINXOR  shift, and go to state 88
+    TIMES   shift, and go to state 74
+    DIVIDE  shift, and go to state 75
+    MOD     shift, and go to state 76
+    BINAND  shift, and go to state 77
+    BINOR   shift, and go to state 78
+    BINXOR  shift, and go to state 79
 
     $default  reduce using rule 90 (expr2)
 
 
-State 39
+State 37
 
    93 expr3: expr4 .
 
     $default  reduce using rule 93 (expr3)
 
 
+State 38
+
+   40 statement: designator . lparenmark expressionlist rparenmark
+   75 expression: designator . ASSIGN expression
+   76           | designator . PLUSASSIGN expression
+   77           | designator . MINUSASSIGN expression
+   78           | designator . MULASSIGN expression
+   79           | designator . DIVASSIGN expression
+   80           | designator . MODASSIGN expression
+   81           | designator . ANDASSIGN expression
+   82           | designator . ORASSIGN expression
+   83           | designator . BANDASSIGN expression
+   84           | designator . BORASSIGN expression
+   85           | designator . XORASSIGN expression
+  106 expr4: designator . lparenmark expressionlist rparenmark
+  107      | designator . lparenmark rparenmark
+  111      | designator .
+
+    LPAREN       shift, and go to state 12
+    ASSIGN       shift, and go to state 80
+    PLUSASSIGN   shift, and go to state 81
+    MINUSASSIGN  shift, and go to state 82
+    MULASSIGN    shift, and go to state 83
+    DIVASSIGN    shift, and go to state 84
+    MODASSIGN    shift, and go to state 85
+    ANDASSIGN    shift, and go to state 86
+    ORASSIGN     shift, and go to state 87
+    BANDASSIGN   shift, and go to state 88
+    BORASSIGN    shift, and go to state 89
+    XORASSIGN    shift, and go to state 90
+
+    $default  reduce using rule 111 (expr4)
+
+    lparenmark  go to state 91
+
+
+State 39
+
+   23 anyreturnmark: RETURN expression .
+
+    $default  reduce using rule 23 (anyreturnmark)
+
+
 State 40
 
+   75 expression: designator . ASSIGN expression
+   76           | designator . PLUSASSIGN expression
+   77           | designator . MINUSASSIGN expression
+   78           | designator . MULASSIGN expression
+   79           | designator . DIVASSIGN expression
+   80           | designator . MODASSIGN expression
+   81           | designator . ANDASSIGN expression
+   82           | designator . ORASSIGN expression
+   83           | designator . BANDASSIGN expression
+   84           | designator . BORASSIGN expression
+   85           | designator . XORASSIGN expression
   106 expr4: designator . lparenmark expressionlist rparenmark
-  110      | designator .
+  107      | designator . lparenmark rparenmark
+  111      | designator .
 
-    LPAREN  shift, and go to state 25
+    LPAREN       shift, and go to state 12
+    ASSIGN       shift, and go to state 80
+    PLUSASSIGN   shift, and go to state 81
+    MINUSASSIGN  shift, and go to state 82
+    MULASSIGN    shift, and go to state 83
+    DIVASSIGN    shift, and go to state 84
+    MODASSIGN    shift, and go to state 85
+    ANDASSIGN    shift, and go to state 86
+    ORASSIGN     shift, and go to state 87
+    BANDASSIGN   shift, and go to state 88
+    BORASSIGN    shift, and go to state 89
+    XORASSIGN    shift, and go to state 90
 
-    $default  reduce using rule 110 (expr4)
+    $default  reduce using rule 111 (expr4)
 
-    lparenmark  go to state 89
+    lparenmark  go to state 92
 
 
 State 41
 
-   57 statement: defmark designator . lparenmark argumentlist rparenmark stmseq endmark
-   58          | defmark designator . lparenmark rparenmark stmseq endmark
-   59          | defmark designator . lparenmark argumentlist rparenmark stmseq returnmark endmark
-   60          | defmark designator . lparenmark argumentlist rparenmark returnmark endmark
-   61          | defmark designator . lparenmark rparenmark stmseq returnmark endmark
-   62          | defmark designator . lparenmark rparenmark returnmark endmark
+   65 endmarker: SEMICOLON ENDTOKEN .
 
-    LPAREN  shift, and go to state 25
-
-    lparenmark  go to state 90
+    $default  reduce using rule 65 (endmarker)
 
 
 State 42
-
-   52 statement: whilemark expression . domark stmseq endmark
-
-    DO        shift, and go to state 91
-    ENDTOKEN  shift, and go to state 92
-
-    domark  go to state 93
-
-
-State 43
-
-   54 statement: unlessmark expression . thenmark stmseq endmark
-   55          | unlessmark expression . thenmark stmseq elsemark stmseq endmark
-
-    THEN      shift, and go to state 70
-    ENDTOKEN  shift, and go to state 71
-
-    thenmark  go to state 94
-
-
-State 44
-
-   53 statement: untillmark expression . domark stmseq endmark
-
-    DO        shift, and go to state 91
-    ENDTOKEN  shift, and go to state 92
-
-    domark  go to state 95
-
-
-State 45
-
-   56 statement: casemark expression . whenmark expression thenmark stmseq whenstm
-
-    WHEN      shift, and go to state 96
-    ENDTOKEN  shift, and go to state 97
-
-    whenmark  go to state 98
-
-
-State 46
-
-   71 stmseq: statement endmarker . stmseq
-   72       | statement endmarker .
-
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
-
-    ENDTOKEN  [reduce using rule 72 (stmseq)]
-    $default  reduce using rule 72 (stmseq)
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 99
-    endmarker   go to state 21
-    designator  go to state 22
-
-
-State 47
-
-   70 stmseq: endmarker stmseq .
-
-    $default  reduce using rule 70 (stmseq)
-
-
-State 48
-
-   38 statement: designator ASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 100
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 49
-
-   39 statement: designator PLUSASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 101
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 50
-
-   40 statement: designator MINUSASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 102
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 51
-
-   41 statement: designator MULASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 103
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 52
-
-   42 statement: designator DIVASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 104
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 53
-
-   43 statement: designator MODASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 105
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 54
-
-   44 statement: designator ANDASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 106
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 55
-
-   45 statement: designator ORASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 107
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 56
-
-   46 statement: designator BANDASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 108
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 57
-
-   47 statement: designator BORASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 109
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 58
-
-   48 statement: designator XORASSIGN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 110
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 59
-
-   50 statement: designator lparenmark . expressionlist rparenmark
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark      go to state 35
-    expression      go to state 61
-    expressionlist  go to state 111
-    expr2           go to state 37
-    expr3           go to state 38
-    expr4           go to state 39
-    designator      go to state 40
-
-
-State 60
 
    16 lparenmark: LPAREN ENDTOKEN .
 
     $default  reduce using rule 16 (lparenmark)
 
 
-State 61
-
-   88 expressionlist: expression . commamark expressionlist
-   89               | expression .
-
-    COMMA     shift, and go to state 112
-    ENDTOKEN  shift, and go to state 113
-
-    ENDTOKEN  [reduce using rule 89 (expressionlist)]
-    $default  reduce using rule 89 (expressionlist)
-
-    commamark  go to state 114
-
-
-State 62
-
-   49 statement: PRINT lparenmark expressionlist . rparenmark
-
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
-
-    rparenmark  go to state 117
-
-
-State 63
+State 43
 
   100 expr4: PLUS expr4 .
 
     $default  reduce using rule 100 (expr4)
 
 
-State 64
+State 44
+
+  106 expr4: designator . lparenmark expressionlist rparenmark
+  107      | designator . lparenmark rparenmark
+  111      | designator .
+
+    LPAREN  shift, and go to state 12
+
+    $default  reduce using rule 111 (expr4)
+
+    lparenmark  go to state 92
+
+
+State 45
 
   101 expr4: MINUS expr4 .
 
     $default  reduce using rule 101 (expr4)
 
 
-State 65
+State 46
 
   103 expr4: BINNOT expr4 .
 
     $default  reduce using rule 103 (expr4)
 
 
-State 66
+State 47
 
   102 expr4: NOT expr4 .
 
     $default  reduce using rule 102 (expr4)
 
 
-State 67
+State 48
+
+   49 statement: UNDEF designator .
+
+    $default  reduce using rule 49 (statement)
+
+
+State 49
+
+   39 statement: PRINT lparenmark . expressionlist rparenmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark      go to state 24
+    expression      go to state 93
+    expressionlist  go to state 94
+    expr2           go to state 35
+    expr3           go to state 36
+    expr4           go to state 37
+    designator      go to state 40
+
+
+State 50
+
+    0 $accept: ROOT $end .
+
+    $default  accept
+
+
+State 51
+
+   41 statement: ifmark expression . thenmark stmseq ifstm
+
+    THEN      shift, and go to state 95
+    ENDTOKEN  shift, and go to state 96
+
+    thenmark  go to state 97
+
+
+State 52
+
+   47 statement: defmark designator . lparenmark argumentlist rparenmark stmseq endmark
+   48          | defmark designator . lparenmark rparenmark stmseq endmark
+
+    LPAREN  shift, and go to state 12
+
+    lparenmark  go to state 98
+
+
+State 53
 
   105 expr4: lparenmark statement . commamark expression rparenmark
 
-    COMMA     shift, and go to state 112
-    ENDTOKEN  shift, and go to state 113
+    COMMA     shift, and go to state 99
+    ENDTOKEN  shift, and go to state 100
 
-    commamark  go to state 118
+    commamark  go to state 101
 
 
-State 68
+State 54
 
+   22 anyreturnmark: endmarker . RETURN expression
+
+    RETURN  shift, and go to state 102
+
+
+State 55
+
+   51 statement: expression .
   104 expr4: lparenmark expression . rparenmark
 
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
 
-    rparenmark  go to state 119
+    ENDTOKEN  [reduce using rule 51 (statement)]
+    $default  reduce using rule 51 (statement)
 
-
-State 69
-
-   38 statement: designator . ASSIGN expression
-   39          | designator . PLUSASSIGN expression
-   40          | designator . MINUSASSIGN expression
-   41          | designator . MULASSIGN expression
-   42          | designator . DIVASSIGN expression
-   43          | designator . MODASSIGN expression
-   44          | designator . ANDASSIGN expression
-   45          | designator . ORASSIGN expression
-   46          | designator . BANDASSIGN expression
-   47          | designator . BORASSIGN expression
-   48          | designator . XORASSIGN expression
-   50          | designator . lparenmark expressionlist rparenmark
-  106 expr4: designator . lparenmark expressionlist rparenmark
-  110      | designator .
-
-    LPAREN       shift, and go to state 25
-    ASSIGN       shift, and go to state 48
-    PLUSASSIGN   shift, and go to state 49
-    MINUSASSIGN  shift, and go to state 50
-    MULASSIGN    shift, and go to state 51
-    DIVASSIGN    shift, and go to state 52
-    MODASSIGN    shift, and go to state 53
-    ANDASSIGN    shift, and go to state 54
-    ORASSIGN     shift, and go to state 55
-    BANDASSIGN   shift, and go to state 56
-    BORASSIGN    shift, and go to state 57
-    XORASSIGN    shift, and go to state 58
-
-    $default  reduce using rule 110 (expr4)
-
-    lparenmark  go to state 120
+    rparenmark  go to state 105
 
 
-State 70
+State 56
 
-    6 thenmark: THEN . ENDTOKEN
-    8         | THEN .
+   42 statement: whilemark expression . domark stmseq endmark
 
-    ENDTOKEN  shift, and go to state 121
+    DO        shift, and go to state 106
+    ENDTOKEN  shift, and go to state 107
 
-    ENDTOKEN  [reduce using rule 8 (thenmark)]
-    $default  reduce using rule 8 (thenmark)
-
-
-State 71
-
-    5 thenmark: ENDTOKEN . THEN ENDTOKEN
-    7         | ENDTOKEN . THEN
-
-    THEN  shift, and go to state 122
+    domark  go to state 108
 
 
-State 72
+State 57
 
-   51 statement: ifmark expression thenmark . stmseq ifstm
+   44 statement: unlessmark expression . thenmark stmseq endmark
+   45          | unlessmark expression . thenmark stmseq elsemark stmseq endmark
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    THEN      shift, and go to state 95
+    ENDTOKEN  shift, and go to state 96
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 123
-    endmarker   go to state 21
-    designator  go to state 22
+    thenmark  go to state 109
 
 
-State 73
+State 58
+
+   43 statement: untillmark expression . domark stmseq endmark
+
+    DO        shift, and go to state 106
+    ENDTOKEN  shift, and go to state 107
+
+    domark  go to state 110
+
+
+State 59
+
+   46 statement: casemark expression . whenmark expression thenmark stmseq whenstm
+
+    WHEN      shift, and go to state 111
+    ENDTOKEN  shift, and go to state 112
+
+    whenmark  go to state 113
+
+
+State 60
+
+   59 stmseq: statement endmarker . stmseq
+   60       | statement endmarker .
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    RETURN     [reduce using rule 60 (stmseq)]
+    SEMICOLON  [reduce using rule 60 (stmseq)]
+    ENDTOKEN   [reduce using rule 60 (stmseq)]
+    $default   reduce using rule 60 (stmseq)
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 114
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 61
+
+   62 stmseq: stmseq returnmark .
+
+    $default  reduce using rule 62 (stmseq)
+
+
+State 62
+
+   22 anyreturnmark: endmarker RETURN . expression
+   23              | RETURN . expression
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 115
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 63
+
+   58 stmseq: endmarker stmseq .
+   62       | stmseq . returnmark
+
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 20
+
+    RETURN     [reduce using rule 58 (stmseq)]
+    SEMICOLON  [reduce using rule 58 (stmseq)]
+    ENDTOKEN   [reduce using rule 58 (stmseq)]
+    $default   reduce using rule 58 (stmseq)
+
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
+
+
+State 64
 
    91 expr2: expr2 PLUS . expr3
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr3       go to state 124
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr3       go to state 116
+    expr4       go to state 37
+    designator  go to state 44
 
 
-State 74
+State 65
 
    92 expr2: expr2 MINUS . expr3
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr3       go to state 125
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr3       go to state 117
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 66
+
+   67 expression: expr2 EQ . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 118
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 67
+
+   68 expression: expr2 NEQ . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 119
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 68
+
+   69 expression: expr2 LT . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 120
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 69
+
+   70 expression: expr2 LE . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 121
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 70
+
+   71 expression: expr2 GT . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 122
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 71
+
+   72 expression: expr2 GE . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 123
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 72
+
+   73 expression: expr2 AND . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 124
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 73
+
+   74 expression: expr2 OR . expr2
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr2       go to state 125
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 44
+
+
+State 74
+
+   94 expr3: expr3 TIMES . expr4
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expr4       go to state 126
+    designator  go to state 44
 
 
 State 75
 
-   78 expression: expr2 EQ . expr2
+   95 expr3: expr3 DIVIDE . expr4
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 126
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr4       go to state 127
+    designator  go to state 44
 
 
 State 76
 
-   79 expression: expr2 NEQ . expr2
+   96 expr3: expr3 MOD . expr4
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 127
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr4       go to state 128
+    designator  go to state 44
 
 
 State 77
 
-   80 expression: expr2 LT . expr2
+   97 expr3: expr3 BINAND . expr4
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 128
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr4       go to state 129
+    designator  go to state 44
 
 
 State 78
 
-   81 expression: expr2 LE . expr2
+   98 expr3: expr3 BINOR . expr4
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 129
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr4       go to state 130
+    designator  go to state 44
 
 
 State 79
 
-   82 expression: expr2 GT . expr2
+   99 expr3: expr3 BINXOR . expr4
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 130
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    lparenmark  go to state 24
+    expr4       go to state 131
+    designator  go to state 44
 
 
 State 80
 
-   83 expression: expr2 GE . expr2
+   75 expression: designator ASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 131
-    expr3       go to state 38
-    expr4       go to state 39
+    lparenmark  go to state 24
+    expression  go to state 132
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 81
 
-   84 expression: expr2 AND . expr2
+   76 expression: designator PLUSASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 132
-    expr3       go to state 38
-    expr4       go to state 39
+    lparenmark  go to state 24
+    expression  go to state 133
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 82
 
-   85 expression: expr2 OR . expr2
+   77 expression: designator MINUSASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr2       go to state 133
-    expr3       go to state 38
-    expr4       go to state 39
+    lparenmark  go to state 24
+    expression  go to state 134
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 83
 
-   94 expr3: expr3 TIMES . expr4
+   78 expression: designator MULASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr4       go to state 134
+    lparenmark  go to state 24
+    expression  go to state 135
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 84
 
-   95 expr3: expr3 DIVIDE . expr4
+   79 expression: designator DIVASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr4       go to state 135
+    lparenmark  go to state 24
+    expression  go to state 136
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 85
 
-   96 expr3: expr3 MOD . expr4
+   80 expression: designator MODASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr4       go to state 136
+    lparenmark  go to state 24
+    expression  go to state 137
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 86
 
-   97 expr3: expr3 BINAND . expr4
+   81 expression: designator ANDASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr4       go to state 137
+    lparenmark  go to state 24
+    expression  go to state 138
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 87
 
-   98 expr3: expr3 BINOR . expr4
+   82 expression: designator ORASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr4       go to state 138
+    lparenmark  go to state 24
+    expression  go to state 139
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 88
 
-   99 expr3: expr3 BINXOR . expr4
+   83 expression: designator BANDASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark  go to state 35
-    expr4       go to state 139
+    lparenmark  go to state 24
+    expression  go to state 140
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
     designator  go to state 40
 
 
 State 89
 
-  106 expr4: designator lparenmark . expressionlist rparenmark
+   84 expression: designator BORASSIGN . expression
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    lparenmark      go to state 35
-    expression      go to state 61
-    expressionlist  go to state 140
-    expr2           go to state 37
-    expr3           go to state 38
-    expr4           go to state 39
-    designator      go to state 40
+    lparenmark  go to state 24
+    expression  go to state 141
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
 
 
 State 90
 
-   57 statement: defmark designator lparenmark . argumentlist rparenmark stmseq endmark
-   58          | defmark designator lparenmark . rparenmark stmseq endmark
-   59          | defmark designator lparenmark . argumentlist rparenmark stmseq returnmark endmark
-   60          | defmark designator lparenmark . argumentlist rparenmark returnmark endmark
-   61          | defmark designator lparenmark . rparenmark stmseq returnmark endmark
-   62          | defmark designator lparenmark . rparenmark returnmark endmark
+   85 expression: designator XORASSIGN . expression
 
-    ID        shift, and go to state 1
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    rparenmark    go to state 141
-    argumentlist  go to state 142
-    designator    go to state 143
+    lparenmark  go to state 24
+    expression  go to state 142
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
 
 
 State 91
 
-   27 domark: DO . ENDTOKEN
-   29       | DO .
+   40 statement: designator lparenmark . expressionlist rparenmark
+  106 expr4: designator lparenmark . expressionlist rparenmark
+  107      | designator lparenmark . rparenmark
 
-    ENDTOKEN  shift, and go to state 144
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    RPAREN      shift, and go to state 103
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    ENDTOKEN    shift, and go to state 104
 
-    ENDTOKEN  [reduce using rule 29 (domark)]
-    $default  reduce using rule 29 (domark)
+    lparenmark      go to state 24
+    rparenmark      go to state 143
+    expression      go to state 93
+    expressionlist  go to state 144
+    expr2           go to state 35
+    expr3           go to state 36
+    expr4           go to state 37
+    designator      go to state 40
 
 
 State 92
 
-   26 domark: ENDTOKEN . DO ENDTOKEN
-   28       | ENDTOKEN . DO
+  106 expr4: designator lparenmark . expressionlist rparenmark
+  107      | designator lparenmark . rparenmark
 
-    DO  shift, and go to state 145
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    RPAREN      shift, and go to state 103
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    ENDTOKEN    shift, and go to state 104
+
+    lparenmark      go to state 24
+    rparenmark      go to state 143
+    expression      go to state 93
+    expressionlist  go to state 145
+    expr2           go to state 35
+    expr3           go to state 36
+    expr4           go to state 37
+    designator      go to state 40
 
 
 State 93
 
-   52 statement: whilemark expression domark . stmseq endmark
+   88 expressionlist: expression . commamark expressionlist
+   89               | expression .
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    COMMA     shift, and go to state 99
+    ENDTOKEN  shift, and go to state 100
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 146
-    endmarker   go to state 21
-    designator  go to state 22
+    ENDTOKEN  [reduce using rule 89 (expressionlist)]
+    $default  reduce using rule 89 (expressionlist)
+
+    commamark  go to state 146
 
 
 State 94
 
-   54 statement: unlessmark expression thenmark . stmseq endmark
-   55          | unlessmark expression thenmark . stmseq elsemark stmseq endmark
+   39 statement: PRINT lparenmark expressionlist . rparenmark
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 147
-    endmarker   go to state 21
-    designator  go to state 22
+    rparenmark  go to state 147
 
 
 State 95
 
-   53 statement: untillmark expression domark . stmseq endmark
+    6 thenmark: THEN . ENDTOKEN
+    8         | THEN .
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    ENDTOKEN  shift, and go to state 148
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 148
-    endmarker   go to state 21
-    designator  go to state 22
+    ENDTOKEN  [reduce using rule 8 (thenmark)]
+    $default  reduce using rule 8 (thenmark)
 
 
 State 96
 
-   33 whenmark: WHEN .
+    5 thenmark: ENDTOKEN . THEN ENDTOKEN
+    7         | ENDTOKEN . THEN
 
-    $default  reduce using rule 33 (whenmark)
+    THEN  shift, and go to state 149
 
 
 State 97
 
-   32 whenmark: ENDTOKEN . WHEN
+   41 statement: ifmark expression thenmark . stmseq ifstm
 
-    WHEN  shift, and go to state 149
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 150
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
 State 98
 
-   56 statement: casemark expression whenmark . expression thenmark stmseq whenstm
+   47 statement: defmark designator lparenmark . argumentlist rparenmark stmseq endmark
+   48          | defmark designator lparenmark . rparenmark stmseq endmark
 
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    ID        shift, and go to state 1
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
 
-    lparenmark  go to state 35
-    expression  go to state 150
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    rparenmark    go to state 151
+    argumentlist  go to state 152
+    designator    go to state 153
 
 
 State 99
 
-   71 stmseq: statement endmarker stmseq .
+   36 commamark: COMMA . ENDTOKEN
+   38          | COMMA .
 
-    $default  reduce using rule 71 (stmseq)
+    ENDTOKEN  shift, and go to state 154
+
+    $default  reduce using rule 38 (commamark)
 
 
 State 100
 
-   38 statement: designator ASSIGN expression .
+   35 commamark: ENDTOKEN . COMMA ENDTOKEN
+   37          | ENDTOKEN . COMMA
 
-    $default  reduce using rule 38 (statement)
+    COMMA  shift, and go to state 155
 
 
 State 101
 
-   39 statement: designator PLUSASSIGN expression .
+  105 expr4: lparenmark statement commamark . expression rparenmark
 
-    $default  reduce using rule 39 (statement)
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 156
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
 
 
 State 102
 
-   40 statement: designator MINUSASSIGN expression .
+   22 anyreturnmark: endmarker RETURN . expression
 
-    $default  reduce using rule 40 (statement)
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 157
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
 
 
 State 103
 
-   41 statement: designator MULASSIGN expression .
-
-    $default  reduce using rule 41 (statement)
-
-
-State 104
-
-   42 statement: designator DIVASSIGN expression .
-
-    $default  reduce using rule 42 (statement)
-
-
-State 105
-
-   43 statement: designator MODASSIGN expression .
-
-    $default  reduce using rule 43 (statement)
-
-
-State 106
-
-   44 statement: designator ANDASSIGN expression .
-
-    $default  reduce using rule 44 (statement)
-
-
-State 107
-
-   45 statement: designator ORASSIGN expression .
-
-    $default  reduce using rule 45 (statement)
-
-
-State 108
-
-   46 statement: designator BANDASSIGN expression .
-
-    $default  reduce using rule 46 (statement)
-
-
-State 109
-
-   47 statement: designator BORASSIGN expression .
-
-    $default  reduce using rule 47 (statement)
-
-
-State 110
-
-   48 statement: designator XORASSIGN expression .
-
-    $default  reduce using rule 48 (statement)
-
-
-State 111
-
-   50 statement: designator lparenmark expressionlist . rparenmark
-
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
-
-    rparenmark  go to state 151
-
-
-State 112
-
-   35 commamark: COMMA . ENDTOKEN
-   37          | COMMA .
-
-    ENDTOKEN  shift, and go to state 152
-
-    $default  reduce using rule 37 (commamark)
-
-
-State 113
-
-   34 commamark: ENDTOKEN . COMMA ENDTOKEN
-   36          | ENDTOKEN . COMMA
-
-    COMMA  shift, and go to state 153
-
-
-State 114
-
-   88 expressionlist: expression commamark . expressionlist
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark      go to state 35
-    expression      go to state 61
-    expressionlist  go to state 154
-    expr2           go to state 37
-    expr3           go to state 38
-    expr4           go to state 39
-    designator      go to state 40
-
-
-State 115
-
    19 rparenmark: RPAREN . ENDTOKEN
    21           | RPAREN .
 
-    ENDTOKEN  shift, and go to state 155
+    ENDTOKEN  shift, and go to state 158
 
     ENDTOKEN  [reduce using rule 21 (rparenmark)]
     $default  reduce using rule 21 (rparenmark)
 
 
-State 116
+State 104
 
    18 rparenmark: ENDTOKEN . RPAREN ENDTOKEN
    20           | ENDTOKEN . RPAREN
 
-    RPAREN  shift, and go to state 156
+    RPAREN  shift, and go to state 159
 
 
-State 117
-
-   49 statement: PRINT lparenmark expressionlist rparenmark .
-
-    $default  reduce using rule 49 (statement)
-
-
-State 118
-
-  105 expr4: lparenmark statement commamark . expression rparenmark
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 157
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 119
+State 105
 
   104 expr4: lparenmark expression rparenmark .
 
     $default  reduce using rule 104 (expr4)
 
 
-State 120
+State 106
 
-   50 statement: designator lparenmark . expressionlist rparenmark
-  106 expr4: designator lparenmark . expressionlist rparenmark
+   28 domark: DO . ENDTOKEN
+   30       | DO .
+
+    ENDTOKEN  shift, and go to state 160
+
+    ENDTOKEN  [reduce using rule 30 (domark)]
+    $default  reduce using rule 30 (domark)
+
+
+State 107
+
+   27 domark: ENDTOKEN . DO ENDTOKEN
+   29       | ENDTOKEN . DO
+
+    DO  shift, and go to state 161
+
+
+State 108
+
+   42 statement: whilemark expression domark . stmseq endmark
 
     ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
 
-    lparenmark      go to state 35
-    expression      go to state 61
-    expressionlist  go to state 158
-    expr2           go to state 37
-    expr3           go to state 38
-    expr4           go to state 39
-    designator      go to state 40
-
-
-State 121
-
-    6 thenmark: THEN ENDTOKEN .
-
-    $default  reduce using rule 6 (thenmark)
-
-
-State 122
-
-    5 thenmark: ENDTOKEN THEN . ENDTOKEN
-    7         | ENDTOKEN THEN .
-
-    ENDTOKEN  shift, and go to state 159
-
-    ENDTOKEN  [reduce using rule 7 (thenmark)]
-    $default  reduce using rule 7 (thenmark)
-
-
-State 123
-
-   51 statement: ifmark expression thenmark stmseq . ifstm
-
-    ELSIF     shift, and go to state 160
-    ELSE      shift, and go to state 161
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 163
-
-    elifmark  go to state 164
-    elsemark  go to state 165
-    endmark   go to state 166
-    ifstm     go to state 167
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 162
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
-State 124
+State 109
+
+   44 statement: unlessmark expression thenmark . stmseq endmark
+   45          | unlessmark expression thenmark . stmseq elsemark stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 163
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 110
+
+   43 statement: untillmark expression domark . stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 164
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 111
+
+   34 whenmark: WHEN .
+
+    $default  reduce using rule 34 (whenmark)
+
+
+State 112
+
+   33 whenmark: ENDTOKEN . WHEN
+
+    WHEN  shift, and go to state 165
+
+
+State 113
+
+   46 statement: casemark expression whenmark . expression thenmark stmseq whenstm
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 166
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 114
+
+   59 stmseq: statement endmarker stmseq .
+   62       | stmseq . returnmark
+
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 20
+
+    RETURN     [reduce using rule 59 (stmseq)]
+    SEMICOLON  [reduce using rule 59 (stmseq)]
+    ENDTOKEN   [reduce using rule 59 (stmseq)]
+    $default   reduce using rule 59 (stmseq)
+
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
+
+
+State 115
+
+   22 anyreturnmark: endmarker RETURN expression .
+   23              | RETURN expression .
+
+    $end       reduce using rule 22 (anyreturnmark)
+    $end       [reduce using rule 23 (anyreturnmark)]
+    ELSIF      reduce using rule 22 (anyreturnmark)
+    ELSIF      [reduce using rule 23 (anyreturnmark)]
+    ELSE       reduce using rule 22 (anyreturnmark)
+    ELSE       [reduce using rule 23 (anyreturnmark)]
+    WHEN       reduce using rule 22 (anyreturnmark)
+    WHEN       [reduce using rule 23 (anyreturnmark)]
+    END        reduce using rule 22 (anyreturnmark)
+    END        [reduce using rule 23 (anyreturnmark)]
+    RETURN     reduce using rule 22 (anyreturnmark)
+    RETURN     [reduce using rule 23 (anyreturnmark)]
+    SEMICOLON  reduce using rule 22 (anyreturnmark)
+    SEMICOLON  [reduce using rule 23 (anyreturnmark)]
+    ENDTOKEN   reduce using rule 22 (anyreturnmark)
+    ENDTOKEN   [reduce using rule 23 (anyreturnmark)]
+    $default   reduce using rule 22 (anyreturnmark)
+
+
+State 116
 
    91 expr2: expr2 PLUS expr3 .
    94 expr3: expr3 . TIMES expr4
@@ -2210,17 +2340,17 @@ State 124
    98      | expr3 . BINOR expr4
    99      | expr3 . BINXOR expr4
 
-    TIMES   shift, and go to state 83
-    DIVIDE  shift, and go to state 84
-    MOD     shift, and go to state 85
-    BINAND  shift, and go to state 86
-    BINOR   shift, and go to state 87
-    BINXOR  shift, and go to state 88
+    TIMES   shift, and go to state 74
+    DIVIDE  shift, and go to state 75
+    MOD     shift, and go to state 76
+    BINAND  shift, and go to state 77
+    BINOR   shift, and go to state 78
+    BINXOR  shift, and go to state 79
 
     $default  reduce using rule 91 (expr2)
 
 
-State 125
+State 117
 
    92 expr2: expr2 MINUS expr3 .
    94 expr3: expr3 . TIMES expr4
@@ -2230,329 +2360,438 @@ State 125
    98      | expr3 . BINOR expr4
    99      | expr3 . BINXOR expr4
 
-    TIMES   shift, and go to state 83
-    DIVIDE  shift, and go to state 84
-    MOD     shift, and go to state 85
-    BINAND  shift, and go to state 86
-    BINOR   shift, and go to state 87
-    BINXOR  shift, and go to state 88
+    TIMES   shift, and go to state 74
+    DIVIDE  shift, and go to state 75
+    MOD     shift, and go to state 76
+    BINAND  shift, and go to state 77
+    BINOR   shift, and go to state 78
+    BINXOR  shift, and go to state 79
 
     $default  reduce using rule 92 (expr2)
 
 
+State 118
+
+   67 expression: expr2 EQ expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 67 (expression)
+
+
+State 119
+
+   68 expression: expr2 NEQ expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 68 (expression)
+
+
+State 120
+
+   69 expression: expr2 LT expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 69 (expression)
+
+
+State 121
+
+   70 expression: expr2 LE expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 70 (expression)
+
+
+State 122
+
+   71 expression: expr2 GT expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 71 (expression)
+
+
+State 123
+
+   72 expression: expr2 GE expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 72 (expression)
+
+
+State 124
+
+   73 expression: expr2 AND expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 73 (expression)
+
+
+State 125
+
+   74 expression: expr2 OR expr2 .
+   91 expr2: expr2 . PLUS expr3
+   92      | expr2 . MINUS expr3
+
+    PLUS   shift, and go to state 64
+    MINUS  shift, and go to state 65
+
+    $default  reduce using rule 74 (expression)
+
+
 State 126
-
-   78 expression: expr2 EQ expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 78 (expression)
-
-
-State 127
-
-   79 expression: expr2 NEQ expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 79 (expression)
-
-
-State 128
-
-   80 expression: expr2 LT expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 80 (expression)
-
-
-State 129
-
-   81 expression: expr2 LE expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 81 (expression)
-
-
-State 130
-
-   82 expression: expr2 GT expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 82 (expression)
-
-
-State 131
-
-   83 expression: expr2 GE expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 83 (expression)
-
-
-State 132
-
-   84 expression: expr2 AND expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 84 (expression)
-
-
-State 133
-
-   85 expression: expr2 OR expr2 .
-   91 expr2: expr2 . PLUS expr3
-   92      | expr2 . MINUS expr3
-
-    PLUS   shift, and go to state 73
-    MINUS  shift, and go to state 74
-
-    $default  reduce using rule 85 (expression)
-
-
-State 134
 
    94 expr3: expr3 TIMES expr4 .
 
     $default  reduce using rule 94 (expr3)
 
 
-State 135
+State 127
 
    95 expr3: expr3 DIVIDE expr4 .
 
     $default  reduce using rule 95 (expr3)
 
 
-State 136
+State 128
 
    96 expr3: expr3 MOD expr4 .
 
     $default  reduce using rule 96 (expr3)
 
 
-State 137
+State 129
 
    97 expr3: expr3 BINAND expr4 .
 
     $default  reduce using rule 97 (expr3)
 
 
-State 138
+State 130
 
    98 expr3: expr3 BINOR expr4 .
 
     $default  reduce using rule 98 (expr3)
 
 
-State 139
+State 131
 
    99 expr3: expr3 BINXOR expr4 .
 
     $default  reduce using rule 99 (expr3)
 
 
+State 132
+
+   75 expression: designator ASSIGN expression .
+
+    $default  reduce using rule 75 (expression)
+
+
+State 133
+
+   76 expression: designator PLUSASSIGN expression .
+
+    $default  reduce using rule 76 (expression)
+
+
+State 134
+
+   77 expression: designator MINUSASSIGN expression .
+
+    $default  reduce using rule 77 (expression)
+
+
+State 135
+
+   78 expression: designator MULASSIGN expression .
+
+    $default  reduce using rule 78 (expression)
+
+
+State 136
+
+   79 expression: designator DIVASSIGN expression .
+
+    $default  reduce using rule 79 (expression)
+
+
+State 137
+
+   80 expression: designator MODASSIGN expression .
+
+    $default  reduce using rule 80 (expression)
+
+
+State 138
+
+   81 expression: designator ANDASSIGN expression .
+
+    $default  reduce using rule 81 (expression)
+
+
+State 139
+
+   82 expression: designator ORASSIGN expression .
+
+    $default  reduce using rule 82 (expression)
+
+
 State 140
 
-  106 expr4: designator lparenmark expressionlist . rparenmark
+   83 expression: designator BANDASSIGN expression .
 
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
-
-    rparenmark  go to state 168
+    $default  reduce using rule 83 (expression)
 
 
 State 141
 
-   58 statement: defmark designator lparenmark rparenmark . stmseq endmark
-   61          | defmark designator lparenmark rparenmark . stmseq returnmark endmark
-   62          | defmark designator lparenmark rparenmark . returnmark endmark
+   84 expression: designator BORASSIGN expression .
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    RETURN     shift, and go to state 169
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 170
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    returnmark  go to state 171
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 172
-    endmarker   go to state 21
-    designator  go to state 22
+    $default  reduce using rule 84 (expression)
 
 
 State 142
 
-   57 statement: defmark designator lparenmark argumentlist . rparenmark stmseq endmark
-   59          | defmark designator lparenmark argumentlist . rparenmark stmseq returnmark endmark
-   60          | defmark designator lparenmark argumentlist . rparenmark returnmark endmark
+   85 expression: designator XORASSIGN expression .
 
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
-
-    rparenmark  go to state 173
+    $default  reduce using rule 85 (expression)
 
 
 State 143
 
-   86 argumentlist: designator . commamark argumentlist
-   87             | designator .
+  107 expr4: designator lparenmark rparenmark .
 
-    COMMA     shift, and go to state 112
-    ENDTOKEN  shift, and go to state 113
-
-    ENDTOKEN  [reduce using rule 87 (argumentlist)]
-    $default  reduce using rule 87 (argumentlist)
-
-    commamark  go to state 174
+    $default  reduce using rule 107 (expr4)
 
 
 State 144
 
-   27 domark: DO ENDTOKEN .
+   40 statement: designator lparenmark expressionlist . rparenmark
+  106 expr4: designator lparenmark expressionlist . rparenmark
 
-    $default  reduce using rule 27 (domark)
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
+
+    rparenmark  go to state 167
 
 
 State 145
 
-   26 domark: ENDTOKEN DO . ENDTOKEN
-   28       | ENDTOKEN DO .
+  106 expr4: designator lparenmark expressionlist . rparenmark
 
-    ENDTOKEN  shift, and go to state 175
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
 
-    ENDTOKEN  [reduce using rule 28 (domark)]
-    $default  reduce using rule 28 (domark)
+    rparenmark  go to state 168
 
 
 State 146
 
-   52 statement: whilemark expression domark stmseq . endmark
+   88 expressionlist: expression commamark . expressionlist
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
 
-    endmark  go to state 177
+    lparenmark      go to state 24
+    expression      go to state 93
+    expressionlist  go to state 169
+    expr2           go to state 35
+    expr3           go to state 36
+    expr4           go to state 37
+    designator      go to state 40
 
 
 State 147
 
-   54 statement: unlessmark expression thenmark stmseq . endmark
-   55          | unlessmark expression thenmark stmseq . elsemark stmseq endmark
+   39 statement: PRINT lparenmark expressionlist rparenmark .
 
-    ELSE      shift, and go to state 161
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 178
-
-    elsemark  go to state 179
-    endmark   go to state 180
+    $default  reduce using rule 39 (statement)
 
 
 State 148
 
-   53 statement: untillmark expression domark stmseq . endmark
+    6 thenmark: THEN ENDTOKEN .
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
-
-    endmark  go to state 181
+    $default  reduce using rule 6 (thenmark)
 
 
 State 149
 
-   32 whenmark: ENDTOKEN WHEN .
+    5 thenmark: ENDTOKEN THEN . ENDTOKEN
+    7         | ENDTOKEN THEN .
 
-    $default  reduce using rule 32 (whenmark)
+    ENDTOKEN  shift, and go to state 170
+
+    ENDTOKEN  [reduce using rule 7 (thenmark)]
+    $default  reduce using rule 7 (thenmark)
 
 
 State 150
 
-   56 statement: casemark expression whenmark expression . thenmark stmseq whenstm
+   41 statement: ifmark expression thenmark stmseq . ifstm
+   62 stmseq: stmseq . returnmark
 
-    THEN      shift, and go to state 70
-    ENDTOKEN  shift, and go to state 71
+    ELSIF      shift, and go to state 171
+    ELSE       shift, and go to state 172
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 174
 
-    thenmark  go to state 182
+    elifmark       go to state 175
+    elsemark       go to state 176
+    endmark        go to state 177
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    ifstm          go to state 178
+    endmarker      go to state 54
 
 
 State 151
 
-   50 statement: designator lparenmark expressionlist rparenmark .
+   48 statement: defmark designator lparenmark rparenmark . stmseq endmark
 
-    $default  reduce using rule 50 (statement)
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 179
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
 State 152
 
-   35 commamark: COMMA ENDTOKEN .
+   47 statement: defmark designator lparenmark argumentlist . rparenmark stmseq endmark
 
-    $default  reduce using rule 35 (commamark)
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
+
+    rparenmark  go to state 180
 
 
 State 153
 
-   34 commamark: ENDTOKEN COMMA . ENDTOKEN
-   36          | ENDTOKEN COMMA .
+   86 argumentlist: designator . commamark argumentlist
+   87             | designator .
 
-    ENDTOKEN  shift, and go to state 183
+    COMMA     shift, and go to state 99
+    ENDTOKEN  shift, and go to state 100
 
-    $default  reduce using rule 36 (commamark)
+    ENDTOKEN  [reduce using rule 87 (argumentlist)]
+    $default  reduce using rule 87 (argumentlist)
+
+    commamark  go to state 181
 
 
 State 154
 
-   88 expressionlist: expression commamark expressionlist .
+   36 commamark: COMMA ENDTOKEN .
 
-    $default  reduce using rule 88 (expressionlist)
+    $default  reduce using rule 36 (commamark)
 
 
 State 155
+
+   35 commamark: ENDTOKEN COMMA . ENDTOKEN
+   37          | ENDTOKEN COMMA .
+
+    ENDTOKEN  shift, and go to state 182
+
+    $default  reduce using rule 37 (commamark)
+
+
+State 156
+
+  105 expr4: lparenmark statement commamark expression . rparenmark
+
+    RPAREN    shift, and go to state 103
+    ENDTOKEN  shift, and go to state 104
+
+    rparenmark  go to state 183
+
+
+State 157
+
+   22 anyreturnmark: endmarker RETURN expression .
+
+    $default  reduce using rule 22 (anyreturnmark)
+
+
+State 158
 
    19 rparenmark: RPAREN ENDTOKEN .
 
     $default  reduce using rule 19 (rparenmark)
 
 
-State 156
+State 159
 
    18 rparenmark: ENDTOKEN RPAREN . ENDTOKEN
    20           | ENDTOKEN RPAREN .
@@ -2563,133 +2802,116 @@ State 156
     $default  reduce using rule 20 (rparenmark)
 
 
-State 157
-
-  105 expr4: lparenmark statement commamark expression . rparenmark
-
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
-
-    rparenmark  go to state 185
-
-
-State 158
-
-   50 statement: designator lparenmark expressionlist . rparenmark
-  106 expr4: designator lparenmark expressionlist . rparenmark
-
-    RPAREN    shift, and go to state 115
-    ENDTOKEN  shift, and go to state 116
-
-    rparenmark  go to state 186
-
-
-State 159
-
-    5 thenmark: ENDTOKEN THEN ENDTOKEN .
-
-    $default  reduce using rule 5 (thenmark)
-
-
 State 160
 
-    4 elifmark: ELSIF .
+   28 domark: DO ENDTOKEN .
 
-    $default  reduce using rule 4 (elifmark)
+    $default  reduce using rule 28 (domark)
 
 
 State 161
 
-   10 elsemark: ELSE . ENDTOKEN
-   12         | ELSE .
+   27 domark: ENDTOKEN DO . ENDTOKEN
+   29       | ENDTOKEN DO .
 
-    ENDTOKEN  shift, and go to state 187
+    ENDTOKEN  shift, and go to state 185
 
-    ENDTOKEN  [reduce using rule 12 (elsemark)]
-    $default  reduce using rule 12 (elsemark)
+    ENDTOKEN  [reduce using rule 29 (domark)]
+    $default  reduce using rule 29 (domark)
 
 
 State 162
 
-   14 endmark: END .
+   42 statement: whilemark expression domark stmseq . endmark
+   62 stmseq: stmseq . returnmark
 
-    $default  reduce using rule 14 (endmark)
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
+
+    endmark        go to state 187
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 163
 
-    3 elifmark: ENDTOKEN . ELSIF
-    9 elsemark: ENDTOKEN . ELSE ENDTOKEN
-   11         | ENDTOKEN . ELSE
-   13 endmark: ENDTOKEN . END
+   44 statement: unlessmark expression thenmark stmseq . endmark
+   45          | unlessmark expression thenmark stmseq . elsemark stmseq endmark
+   62 stmseq: stmseq . returnmark
 
-    ELSIF  shift, and go to state 188
-    ELSE   shift, and go to state 189
-    END    shift, and go to state 190
+    ELSE       shift, and go to state 172
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 188
+
+    elsemark       go to state 189
+    endmark        go to state 190
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 164
 
-   64 ifstm: elifmark . expression thenmark stmseq ifstm
+   43 statement: untillmark expression domark stmseq . endmark
+   62 stmseq: stmseq . returnmark
 
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
 
-    lparenmark  go to state 35
-    expression  go to state 191
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    endmark        go to state 191
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 165
 
-   65 ifstm: elsemark . stmseq endmark
+   33 whenmark: ENDTOKEN WHEN .
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 192
-    endmarker   go to state 21
-    designator  go to state 22
+    $default  reduce using rule 33 (whenmark)
 
 
 State 166
 
-   66 ifstm: endmark .
+   46 statement: casemark expression whenmark expression . thenmark stmseq whenstm
 
-    $default  reduce using rule 66 (ifstm)
+    THEN      shift, and go to state 95
+    ENDTOKEN  shift, and go to state 96
+
+    thenmark  go to state 192
 
 
 State 167
 
-   51 statement: ifmark expression thenmark stmseq ifstm .
+   40 statement: designator lparenmark expressionlist rparenmark .
+  106 expr4: designator lparenmark expressionlist rparenmark .
 
-    $default  reduce using rule 51 (statement)
+    $end       reduce using rule 40 (statement)
+    $end       [reduce using rule 106 (expr4)]
+    ELSIF      reduce using rule 40 (statement)
+    ELSIF      [reduce using rule 106 (expr4)]
+    ELSE       reduce using rule 40 (statement)
+    ELSE       [reduce using rule 106 (expr4)]
+    WHEN       reduce using rule 40 (statement)
+    WHEN       [reduce using rule 106 (expr4)]
+    END        reduce using rule 40 (statement)
+    END        [reduce using rule 106 (expr4)]
+    RETURN     reduce using rule 40 (statement)
+    RETURN     [reduce using rule 106 (expr4)]
+    COMMA      reduce using rule 40 (statement)
+    COMMA      [reduce using rule 106 (expr4)]
+    SEMICOLON  reduce using rule 40 (statement)
+    SEMICOLON  [reduce using rule 106 (expr4)]
+    ENDTOKEN   reduce using rule 40 (statement)
+    ENDTOKEN   [reduce using rule 106 (expr4)]
+    $default   reduce using rule 106 (expr4)
 
 
 State 168
@@ -2701,207 +2923,220 @@ State 168
 
 State 169
 
-   23 returnmark: RETURN . expression
+   88 expressionlist: expression commamark expressionlist .
 
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 193
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    $default  reduce using rule 88 (expressionlist)
 
 
 State 170
 
-   22 returnmark: ENDTOKEN . RETURN expression
-   74 endmarker: ENDTOKEN .
+    5 thenmark: ENDTOKEN THEN ENDTOKEN .
 
-    RETURN  shift, and go to state 194
-
-    $default  reduce using rule 74 (endmarker)
+    $default  reduce using rule 5 (thenmark)
 
 
 State 171
 
-   62 statement: defmark designator lparenmark rparenmark returnmark . endmark
+    4 elifmark: ELSIF .
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
-
-    endmark  go to state 195
+    $default  reduce using rule 4 (elifmark)
 
 
 State 172
 
-   58 statement: defmark designator lparenmark rparenmark stmseq . endmark
-   61          | defmark designator lparenmark rparenmark stmseq . returnmark endmark
+   10 elsemark: ELSE . ENDTOKEN
+   12         | ELSE .
 
-    END       shift, and go to state 162
-    RETURN    shift, and go to state 169
-    ENDTOKEN  shift, and go to state 196
+    ENDTOKEN  shift, and go to state 193
 
-    endmark     go to state 197
-    returnmark  go to state 198
+    ENDTOKEN  [reduce using rule 12 (elsemark)]
+    $default  reduce using rule 12 (elsemark)
 
 
 State 173
 
-   57 statement: defmark designator lparenmark argumentlist rparenmark . stmseq endmark
-   59          | defmark designator lparenmark argumentlist rparenmark . stmseq returnmark endmark
-   60          | defmark designator lparenmark argumentlist rparenmark . returnmark endmark
+   14 endmark: END .
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    RETURN     shift, and go to state 169
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 170
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    returnmark  go to state 199
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 200
-    endmarker   go to state 21
-    designator  go to state 22
+    $default  reduce using rule 14 (endmark)
 
 
 State 174
+
+    3 elifmark: ENDTOKEN . ELSIF
+    9 elsemark: ENDTOKEN . ELSE ENDTOKEN
+   11         | ENDTOKEN . ELSE
+   13 endmark: ENDTOKEN . END
+   63 endmarker: ENDTOKEN .
+
+    ELSIF  shift, and go to state 194
+    ELSE   shift, and go to state 195
+    END    shift, and go to state 196
+
+    $default  reduce using rule 63 (endmarker)
+
+
+State 175
+
+   52 ifstm: elifmark . expression thenmark stmseq ifstm
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 197
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
+
+
+State 176
+
+   53 ifstm: elsemark . stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 198
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 177
+
+   54 ifstm: endmark .
+
+    $default  reduce using rule 54 (ifstm)
+
+
+State 178
+
+   41 statement: ifmark expression thenmark stmseq ifstm .
+
+    $default  reduce using rule 41 (statement)
+
+
+State 179
+
+   48 statement: defmark designator lparenmark rparenmark stmseq . endmark
+   62 stmseq: stmseq . returnmark
+
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
+
+    endmark        go to state 199
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
+
+
+State 180
+
+   47 statement: defmark designator lparenmark argumentlist rparenmark . stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 200
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 181
 
    86 argumentlist: designator commamark . argumentlist
 
     ID  shift, and go to state 1
 
     argumentlist  go to state 201
-    designator    go to state 143
-
-
-State 175
-
-   26 domark: ENDTOKEN DO ENDTOKEN .
-
-    $default  reduce using rule 26 (domark)
-
-
-State 176
-
-   13 endmark: ENDTOKEN . END
-
-    END  shift, and go to state 190
-
-
-State 177
-
-   52 statement: whilemark expression domark stmseq endmark .
-
-    $default  reduce using rule 52 (statement)
-
-
-State 178
-
-    9 elsemark: ENDTOKEN . ELSE ENDTOKEN
-   11         | ENDTOKEN . ELSE
-   13 endmark: ENDTOKEN . END
-
-    ELSE  shift, and go to state 189
-    END   shift, and go to state 190
-
-
-State 179
-
-   55 statement: unlessmark expression thenmark stmseq elsemark . stmseq endmark
-
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 202
-    endmarker   go to state 21
-    designator  go to state 22
-
-
-State 180
-
-   54 statement: unlessmark expression thenmark stmseq endmark .
-
-    $default  reduce using rule 54 (statement)
-
-
-State 181
-
-   53 statement: untillmark expression domark stmseq endmark .
-
-    $default  reduce using rule 53 (statement)
+    designator    go to state 153
 
 
 State 182
 
-   56 statement: casemark expression whenmark expression thenmark . stmseq whenstm
+   35 commamark: ENDTOKEN COMMA ENDTOKEN .
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 203
-    endmarker   go to state 21
-    designator  go to state 22
+    $default  reduce using rule 35 (commamark)
 
 
 State 183
 
-   34 commamark: ENDTOKEN COMMA ENDTOKEN .
+  105 expr4: lparenmark statement commamark expression rparenmark .
 
-    $default  reduce using rule 34 (commamark)
+    $default  reduce using rule 105 (expr4)
 
 
 State 184
@@ -2913,37 +3148,158 @@ State 184
 
 State 185
 
-  105 expr4: lparenmark statement commamark expression rparenmark .
+   27 domark: ENDTOKEN DO ENDTOKEN .
 
-    $default  reduce using rule 105 (expr4)
+    $default  reduce using rule 27 (domark)
 
 
 State 186
 
-   50 statement: designator lparenmark expressionlist rparenmark .
-  106 expr4: designator lparenmark expressionlist rparenmark .
+   13 endmark: ENDTOKEN . END
+   63 endmarker: ENDTOKEN .
 
-    COMMA     reduce using rule 50 (statement)
-    ENDTOKEN  reduce using rule 50 (statement)
-    ENDTOKEN  [reduce using rule 106 (expr4)]
-    $default  reduce using rule 106 (expr4)
+    END  shift, and go to state 196
+
+    $default  reduce using rule 63 (endmarker)
 
 
 State 187
+
+   42 statement: whilemark expression domark stmseq endmark .
+
+    $default  reduce using rule 42 (statement)
+
+
+State 188
+
+    9 elsemark: ENDTOKEN . ELSE ENDTOKEN
+   11         | ENDTOKEN . ELSE
+   13 endmark: ENDTOKEN . END
+   63 endmarker: ENDTOKEN .
+
+    ELSE  shift, and go to state 195
+    END   shift, and go to state 196
+
+    $default  reduce using rule 63 (endmarker)
+
+
+State 189
+
+   45 statement: unlessmark expression thenmark stmseq elsemark . stmseq endmark
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 202
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 190
+
+   44 statement: unlessmark expression thenmark stmseq endmark .
+
+    $default  reduce using rule 44 (statement)
+
+
+State 191
+
+   43 statement: untillmark expression domark stmseq endmark .
+
+    $default  reduce using rule 43 (statement)
+
+
+State 192
+
+   46 statement: casemark expression whenmark expression thenmark . stmseq whenstm
+
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 203
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
+
+
+State 193
 
    10 elsemark: ELSE ENDTOKEN .
 
     $default  reduce using rule 10 (elsemark)
 
 
-State 188
+State 194
 
     3 elifmark: ENDTOKEN ELSIF .
 
     $default  reduce using rule 3 (elifmark)
 
 
-State 189
+State 195
 
     9 elsemark: ENDTOKEN ELSE . ENDTOKEN
    11         | ENDTOKEN ELSE .
@@ -2954,116 +3310,60 @@ State 189
     $default  reduce using rule 11 (elsemark)
 
 
-State 190
+State 196
 
    13 endmark: ENDTOKEN END .
 
     $default  reduce using rule 13 (endmark)
 
 
-State 191
+State 197
 
-   64 ifstm: elifmark expression . thenmark stmseq ifstm
+   52 ifstm: elifmark expression . thenmark stmseq ifstm
 
-    THEN      shift, and go to state 70
-    ENDTOKEN  shift, and go to state 71
+    THEN      shift, and go to state 95
+    ENDTOKEN  shift, and go to state 96
 
     thenmark  go to state 205
 
 
-State 192
-
-   65 ifstm: elsemark stmseq . endmark
-
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
-
-    endmark  go to state 206
-
-
-State 193
-
-   23 returnmark: RETURN expression .
-
-    $default  reduce using rule 23 (returnmark)
-
-
-State 194
-
-   22 returnmark: ENDTOKEN RETURN . expression
-
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
-
-    lparenmark  go to state 35
-    expression  go to state 207
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
-
-
-State 195
-
-   62 statement: defmark designator lparenmark rparenmark returnmark endmark .
-
-    $default  reduce using rule 62 (statement)
-
-
-State 196
-
-   13 endmark: ENDTOKEN . END
-   22 returnmark: ENDTOKEN . RETURN expression
-
-    END     shift, and go to state 190
-    RETURN  shift, and go to state 194
-
-
-State 197
-
-   58 statement: defmark designator lparenmark rparenmark stmseq endmark .
-
-    $default  reduce using rule 58 (statement)
-
-
 State 198
 
-   61 statement: defmark designator lparenmark rparenmark stmseq returnmark . endmark
+   53 ifstm: elsemark stmseq . endmark
+   62 stmseq: stmseq . returnmark
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
 
-    endmark  go to state 208
+    endmark        go to state 206
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 199
 
-   60 statement: defmark designator lparenmark argumentlist rparenmark returnmark . endmark
+   48 statement: defmark designator lparenmark rparenmark stmseq endmark .
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
-
-    endmark  go to state 209
+    $default  reduce using rule 48 (statement)
 
 
 State 200
 
-   57 statement: defmark designator lparenmark argumentlist rparenmark stmseq . endmark
-   59          | defmark designator lparenmark argumentlist rparenmark stmseq . returnmark endmark
+   47 statement: defmark designator lparenmark argumentlist rparenmark stmseq . endmark
+   62 stmseq: stmseq . returnmark
 
-    END       shift, and go to state 162
-    RETURN    shift, and go to state 169
-    ENDTOKEN  shift, and go to state 196
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
 
-    endmark     go to state 210
-    returnmark  go to state 211
+    endmark        go to state 207
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 201
@@ -3075,27 +3375,39 @@ State 201
 
 State 202
 
-   55 statement: unlessmark expression thenmark stmseq elsemark stmseq . endmark
+   45 statement: unlessmark expression thenmark stmseq elsemark stmseq . endmark
+   62 stmseq: stmseq . returnmark
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
 
-    endmark  go to state 212
+    endmark        go to state 208
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 203
 
-   56 statement: casemark expression whenmark expression thenmark stmseq . whenstm
+   46 statement: casemark expression whenmark expression thenmark stmseq . whenstm
+   62 stmseq: stmseq . returnmark
 
-    ELSE      shift, and go to state 161
-    WHEN      shift, and go to state 96
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 213
+    ELSE       shift, and go to state 172
+    WHEN       shift, and go to state 111
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 209
 
-    elsemark  go to state 214
-    endmark   go to state 215
-    whenmark  go to state 216
-    whenstm   go to state 217
+    elsemark       go to state 210
+    endmark        go to state 211
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    whenmark       go to state 212
+    whenstm        go to state 213
+    endmarker      go to state 54
 
 
 State 204
@@ -3107,261 +3419,292 @@ State 204
 
 State 205
 
-   64 ifstm: elifmark expression thenmark . stmseq ifstm
+   52 ifstm: elifmark expression thenmark . stmseq ifstm
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 218
-    endmarker   go to state 21
-    designator  go to state 22
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 214
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
 State 206
 
-   65 ifstm: elsemark stmseq endmark .
+   53 ifstm: elsemark stmseq endmark .
 
-    $default  reduce using rule 65 (ifstm)
+    $default  reduce using rule 53 (ifstm)
 
 
 State 207
 
-   22 returnmark: ENDTOKEN RETURN expression .
+   47 statement: defmark designator lparenmark argumentlist rparenmark stmseq endmark .
 
-    $default  reduce using rule 22 (returnmark)
+    $default  reduce using rule 47 (statement)
 
 
 State 208
 
-   61 statement: defmark designator lparenmark rparenmark stmseq returnmark endmark .
+   45 statement: unlessmark expression thenmark stmseq elsemark stmseq endmark .
 
-    $default  reduce using rule 61 (statement)
+    $default  reduce using rule 45 (statement)
 
 
 State 209
 
-   60 statement: defmark designator lparenmark argumentlist rparenmark returnmark endmark .
+    9 elsemark: ENDTOKEN . ELSE ENDTOKEN
+   11         | ENDTOKEN . ELSE
+   13 endmark: ENDTOKEN . END
+   33 whenmark: ENDTOKEN . WHEN
+   63 endmarker: ENDTOKEN .
 
-    $default  reduce using rule 60 (statement)
+    ELSE  shift, and go to state 195
+    WHEN  shift, and go to state 165
+    END   shift, and go to state 196
+
+    $default  reduce using rule 63 (endmarker)
 
 
 State 210
 
-   57 statement: defmark designator lparenmark argumentlist rparenmark stmseq endmark .
+   56 whenstm: elsemark . stmseq endmark
 
-    $default  reduce using rule 57 (statement)
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 215
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
 State 211
 
-   59 statement: defmark designator lparenmark argumentlist rparenmark stmseq returnmark . endmark
+   57 whenstm: endmark .
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
-
-    endmark  go to state 219
+    $default  reduce using rule 57 (whenstm)
 
 
 State 212
 
-   55 statement: unlessmark expression thenmark stmseq elsemark stmseq endmark .
+   55 whenstm: whenmark . expression thenmark stmseq whenstm
 
-    $default  reduce using rule 55 (statement)
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+
+    lparenmark  go to state 24
+    expression  go to state 216
+    expr2       go to state 35
+    expr3       go to state 36
+    expr4       go to state 37
+    designator  go to state 40
 
 
 State 213
 
-    9 elsemark: ENDTOKEN . ELSE ENDTOKEN
-   11         | ENDTOKEN . ELSE
-   13 endmark: ENDTOKEN . END
-   32 whenmark: ENDTOKEN . WHEN
+   46 statement: casemark expression whenmark expression thenmark stmseq whenstm .
 
-    ELSE  shift, and go to state 189
-    WHEN  shift, and go to state 149
-    END   shift, and go to state 190
+    $default  reduce using rule 46 (statement)
 
 
 State 214
 
-   68 whenstm: elsemark . stmseq endmark
+   52 ifstm: elifmark expression thenmark stmseq . ifstm
+   62 stmseq: stmseq . returnmark
 
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
+    ELSIF      shift, and go to state 171
+    ELSE       shift, and go to state 172
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 174
 
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 220
-    endmarker   go to state 21
-    designator  go to state 22
+    elifmark       go to state 175
+    elsemark       go to state 176
+    endmark        go to state 177
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    ifstm          go to state 217
+    endmarker      go to state 54
 
 
 State 215
 
-   69 whenstm: endmark .
+   56 whenstm: elsemark stmseq . endmark
+   62 stmseq: stmseq . returnmark
 
-    $default  reduce using rule 69 (whenstm)
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 186
+
+    endmark        go to state 218
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    endmarker      go to state 54
 
 
 State 216
 
-   67 whenstm: whenmark . expression thenmark stmseq whenstm
+   55 whenstm: whenmark expression . thenmark stmseq whenstm
 
-    ID          shift, and go to state 1
-    INTEGER     shift, and go to state 28
-    REAL        shift, and go to state 29
-    BOOLEANVAR  shift, and go to state 30
-    LPAREN      shift, and go to state 25
-    PLUS        shift, and go to state 31
-    MINUS       shift, and go to state 32
-    BINNOT      shift, and go to state 33
-    NOT         shift, and go to state 34
+    THEN      shift, and go to state 95
+    ENDTOKEN  shift, and go to state 96
 
-    lparenmark  go to state 35
-    expression  go to state 221
-    expr2       go to state 37
-    expr3       go to state 38
-    expr4       go to state 39
-    designator  go to state 40
+    thenmark  go to state 219
 
 
 State 217
 
-   56 statement: casemark expression whenmark expression thenmark stmseq whenstm .
+   52 ifstm: elifmark expression thenmark stmseq ifstm .
 
-    $default  reduce using rule 56 (statement)
+    $default  reduce using rule 52 (ifstm)
 
 
 State 218
 
-   64 ifstm: elifmark expression thenmark stmseq . ifstm
+   56 whenstm: elsemark stmseq endmark .
 
-    ELSIF     shift, and go to state 160
-    ELSE      shift, and go to state 161
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 163
-
-    elifmark  go to state 164
-    elsemark  go to state 165
-    endmark   go to state 166
-    ifstm     go to state 222
+    $default  reduce using rule 56 (whenstm)
 
 
 State 219
 
-   59 statement: defmark designator lparenmark argumentlist rparenmark stmseq returnmark endmark .
+   55 whenstm: whenmark expression thenmark . stmseq whenstm
 
-    $default  reduce using rule 59 (statement)
+    ID          shift, and go to state 1
+    INTEGER     shift, and go to state 2
+    REAL        shift, and go to state 3
+    BOOLEANVAR  shift, and go to state 4
+    IF          shift, and go to state 5
+    WHILE       shift, and go to state 6
+    UNTIL       shift, and go to state 7
+    UNLESS      shift, and go to state 8
+    CASE        shift, and go to state 9
+    RETURN      shift, and go to state 10
+    SEMICOLON   shift, and go to state 11
+    LPAREN      shift, and go to state 12
+    PLUS        shift, and go to state 13
+    MINUS       shift, and go to state 14
+    BINNOT      shift, and go to state 15
+    NOT         shift, and go to state 16
+    DEF         shift, and go to state 17
+    UNDEF       shift, and go to state 18
+    PRINT       shift, and go to state 19
+    ENDTOKEN    shift, and go to state 20
+
+    ifmark         go to state 22
+    defmark        go to state 23
+    lparenmark     go to state 24
+    anyreturnmark  go to state 25
+    returnmark     go to state 26
+    whilemark      go to state 27
+    unlessmark     go to state 28
+    untillmark     go to state 29
+    casemark       go to state 30
+    statement      go to state 31
+    stmseq         go to state 220
+    endmarker      go to state 33
+    expression     go to state 34
+    expr2          go to state 35
+    expr3          go to state 36
+    expr4          go to state 37
+    designator     go to state 38
 
 
 State 220
 
-   68 whenstm: elsemark stmseq . endmark
+   55 whenstm: whenmark expression thenmark stmseq . whenstm
+   62 stmseq: stmseq . returnmark
 
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 176
+    ELSE       shift, and go to state 172
+    WHEN       shift, and go to state 111
+    END        shift, and go to state 173
+    RETURN     shift, and go to state 10
+    SEMICOLON  shift, and go to state 11
+    ENDTOKEN   shift, and go to state 209
 
-    endmark  go to state 223
+    elsemark       go to state 210
+    endmark        go to state 211
+    anyreturnmark  go to state 25
+    returnmark     go to state 61
+    whenmark       go to state 212
+    whenstm        go to state 221
+    endmarker      go to state 54
 
 
 State 221
 
-   67 whenstm: whenmark expression . thenmark stmseq whenstm
+   55 whenstm: whenmark expression thenmark stmseq whenstm .
 
-    THEN      shift, and go to state 70
-    ENDTOKEN  shift, and go to state 71
-
-    thenmark  go to state 224
-
-
-State 222
-
-   64 ifstm: elifmark expression thenmark stmseq ifstm .
-
-    $default  reduce using rule 64 (ifstm)
-
-
-State 223
-
-   68 whenstm: elsemark stmseq endmark .
-
-    $default  reduce using rule 68 (whenstm)
-
-
-State 224
-
-   67 whenstm: whenmark expression thenmark . stmseq whenstm
-
-    ID         shift, and go to state 1
-    IF         shift, and go to state 2
-    WHILE      shift, and go to state 3
-    UNTIL      shift, and go to state 4
-    UNLESS     shift, and go to state 5
-    CASE       shift, and go to state 6
-    SEMICOLON  shift, and go to state 7
-    DEF        shift, and go to state 8
-    UNDEF      shift, and go to state 9
-    PRINT      shift, and go to state 10
-    ENDTOKEN   shift, and go to state 11
-
-    ifmark      go to state 13
-    defmark     go to state 14
-    whilemark   go to state 15
-    unlessmark  go to state 16
-    untillmark  go to state 17
-    casemark    go to state 18
-    statement   go to state 19
-    stmseq      go to state 225
-    endmarker   go to state 21
-    designator  go to state 22
-
-
-State 225
-
-   67 whenstm: whenmark expression thenmark stmseq . whenstm
-
-    ELSE      shift, and go to state 161
-    WHEN      shift, and go to state 96
-    END       shift, and go to state 162
-    ENDTOKEN  shift, and go to state 213
-
-    elsemark  go to state 214
-    endmark   go to state 215
-    whenmark  go to state 216
-    whenstm   go to state 226
-
-
-State 226
-
-   67 whenstm: whenmark expression thenmark stmseq whenstm .
-
-    $default  reduce using rule 67 (whenstm)
+    $default  reduce using rule 55 (whenstm)
