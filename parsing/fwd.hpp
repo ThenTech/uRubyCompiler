@@ -3,7 +3,7 @@
 #include "SymbolTable.hpp"
 
 #ifndef CMP_VERBOSE_CTORS
-    #define CMP_VERBOSE_CTORS 1
+    #define CMP_VERBOSE_CTORS 0
 #endif
 
 namespace cmp {

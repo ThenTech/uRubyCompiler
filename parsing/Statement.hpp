@@ -593,10 +593,9 @@ namespace cmp {
             }
 
             SymbolTable& interpret(SymbolTable& table) const {
-                // Erase id in Function table
-
-                // table.erase(this->id->id);
-
+                // Erase id in Tables
+                table.get_var_table().erase(this->id->id);
+                table.get_fun_table().erase(this->id->id);
                 return table;
             }
     };

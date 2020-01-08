@@ -1,5 +1,7 @@
 %{
+#pragma once
 #include "../tokens.hpp"
+#include "yylexer.hpp"
 #include "../fwd.hpp"
 #include "../Expression.hpp"
 #include "../Statement.hpp"
@@ -14,15 +16,17 @@ extern char* yytext;
 int yyerror(const char *msg) {
     utils::Logger::WriteLn("");
     utils::Logger::Error("BISON: %s", msg);
-    lex_error(yytext);
+    cmp::parse_flags.ErrorIllegalChar({yytext, size_t(yyleng)});
     return 1;
 }
 
-cmp::Statement *root = nullptr;
-struct parse_flags_t {
-    // True if DEF encountered, false after FunctionStatement created.
-    bool saw_defmark;
-} parse_flags{};
+void ppos(const char* rule = "\0") {
+    #if CMP_VERBOSE_CTORS
+        cmp::parse_flags.LogPosition(rule);
+    #endif
+}
+
+static cmp::Statement *root = nullptr;
 
 %}
 
@@ -113,9 +117,9 @@ struct parse_flags_t {
     bool    boolean;
 }
 
-%type <stm>   ROOT statement ifstm whenstm stmseq returnmark
+%type <stm>   ROOT statement ifstm whenstm stmseq stmseq2 returnmark
 %type <idexp> designator
-%type <exp>   expression expr2 expr3 expr4 anyreturnmark
+%type <exp>   expression expr2 expr3 expr4
 %type <expli> expressionlist argumentlist
 
 %type <string>  ID STRING
@@ -123,9 +127,14 @@ struct parse_flags_t {
 %type <real>    REAL
 %type <boolean> BOOLEANVAR
 
-%left LT GT EQ NEQ LE GE AND OR
+%nonassoc LT GT EQ NEQ LE GE AND OR
+%right ASSIGN
+%right PLUSASSIGN MINUSASSIGN MULASSIGN DIVASSIGN MODASSIGN ANDASSIGN ORASSIGN BANDASSIGN BORASSIGN XORASSIGN
 %left PLUS MINUS
 %left TIMES DIVIDE MOD BINAND BINOR BINXOR
+%right THEN ELSE
+
+%right ENDTOKEN SEMICOLON
 
 %%
 
@@ -157,12 +166,12 @@ elsemark:
     ;
 
 endmark:
-      ENDTOKEN END              {}
-    | END                       {}
+      ENDTOKEN END endmarker2   {}
+    | END endmarker2            {}
     ;
 
 defmark:
-      DEF                       { parse_flags.saw_defmark = true; }
+      DEF                       { cmp::parse_flags.EnterDefinition(); }
     ;
 
 lparenmark:
@@ -177,16 +186,10 @@ rparenmark:
     | RPAREN                    {}
     ;
 
-anyreturnmark:
-      endmarker RETURN expression
-                                { $$ = $3; }
-    | RETURN expression         { $$ = $2; }
-    ;
-
 returnmark:
-    anyreturnmark               { ppos("stm::RETURN");
-                                  if (parse_flags.saw_defmark) {
-                                    $$ = new cmp::ReturnStatement($1);
+      RETURN expression         { ppos("stm::RETURN");
+                                  if (cmp::parse_flags.EnteredDefinition()) {
+                                    $$ = new cmp::ReturnStatement($2);
                                   } else {
                                     yyerror("syntax error, RETURN token outside of function block!");
                                     YYERROR;
@@ -230,15 +233,9 @@ commamark:
     ;
 
 statement:
-      PRINT lparenmark expressionlist rparenmark
+      PRINT lparenmark expressionlist rparenmark endmarker
                                 { ppos("stm::PRINT(explist)");
                                   $$ = new cmp::PrintStatement($3); }
-    | designator lparenmark expressionlist rparenmark
-                                { ppos("stm::id(explist)");
-                                  if (($1)->id == "print")
-                                       $$ = new cmp::PrintStatement($3);
-                                  else
-                                       $$ = new cmp::FunctionStatement($1, $3); }
 
     | ifmark expression thenmark stmseq ifstm
                                 { ppos("stm::IF");
@@ -266,12 +263,8 @@ statement:
 
     | defmark designator lparenmark argumentlist rparenmark stmseq endmark
                                 { ppos("stm::DEF id(args)");
-                                  parse_flags.saw_defmark = false;
+                                  cmp::parse_flags.LeaveDefinition();
                                   $$ = new cmp::FunctionStatement($2, $4, $6); }
-    | defmark designator lparenmark rparenmark stmseq endmark
-                                { ppos("stm::DEF id()");
-                                  parse_flags.saw_defmark = false;
-                                  $$ = new cmp::FunctionStatement($2, $5); }
 
     | UNDEF designator          { ppos("stm::UNDEF");
                                   $$ = new cmp::UndefStatement($2); }
@@ -304,27 +297,68 @@ whenstm:
                                   $$ = nullptr; }
     ;
 
+
+// // Attempt 3
+// stmseq:
+//       stmseq endmarker2 stmseq2 { ppos("stmseq::stmseq endmarker2 stm");
+//                                   $$ = new cmp::CompoundStatement($1, $3); }
+//     | stmseq2                   { ppos("stmseq::stm");
+//                                   $$ = $1; }
+//     ;
+
+// stmseq2:
+//       statement                 { $$ = $1; }
+//     ;
+
+// // Attempt 2
 stmseq:
-      endmarker stmseq
-                                { ppos("stmseq::endmarker stmseq");
-                                  $$ = $2; }
-    | statement endmarker stmseq
-                                { ppos("stmseq::stm endmarker stmseq");
-                                  $$ = new cmp::CompoundStatement($1, $3); }
-    | statement endmarker
-                                { ppos("stmseq::stm endmarker");
-                                  $$ = $1; }
-    | statement                 { ppos("stmseq::stm");
-                                  $$ = $1; }
-    | stmseq returnmark         { ppos("stmseq::stmseq returnmark");
+      statement stmseq2         { ppos("stmseq::stm stmseq2");
                                   $$ = new cmp::CompoundStatement($1, $2); }
+    | statement endmarker       { ppos("stmseq::stm endmarker");
+                                  $$ = $1; }
+    ;
+
+stmseq2:
+      endmarker stmseq          { ppos("stmseq2::endmarker stmseq");
+                                  $$ = $2; }
+    | endmarker statement       { ppos("stmseq2::endmarker stm");
+                                  $$ = $2; }
+    ;
+
+
+// // Attemp 1
+// stmseq:
+//       endmarker stmseq
+//                                 { ppos("stmseq::endmarker stmseq");
+//                                   $$ = $2; }
+//     | stmseq endmarker statement
+//                                 { ppos("stmseq::stmseq endmarker stm");
+//                                   $$ = new cmp::CompoundStatement($1, $3); }
+//     | statement endmarker stmseq
+//                                 { ppos("stmseq::stm endmarker stmseq");
+//                                   $$ = new cmp::CompoundStatement($1, $3); }
+//     | statement endmarker
+//                                 { ppos("stmseq::stm endmarker");
+//                                   $$ = $1; }
+//     | statement                 { ppos("stmseq::stm");
+//                                   $$ = $1; }
+//     | stmseq returnmark         { ppos("stmseq::stmseq returnmark");
+//                                   $$ = new cmp::CompoundStatement($1, $2); }
+//     ;
+// stmseq2:
+//       statement                 { $$ = $1; }
+//     ;
+
+endmarker2:
+      ENDTOKEN                  { ppos("endmarker2::ENDTOKEN"); }
+    | ENDTOKEN endmarker2       { ppos("endmarker2::ENDTOKEN endmarker2"); }
+    | SEMICOLON                 { ppos("endmarker2::SEMICOLON"); }
+    | SEMICOLON endmarker2      { ppos("endmarker2::SEMICOLON endmarker2"); }
     ;
 
 endmarker:
-      ENDTOKEN                  { ppos("endmarker::ENDTOKEN"); }
-    | SEMICOLON                 { ppos("endmarker::SEMICOLON"); }
-    | SEMICOLON ENDTOKEN       { ppos("endmarker::SEMICOLON endmarker"); }
-    // | ENDTOKEN endmarker        { ppos("endmarker::ENDTOKEN endmarker"); }
+      endmarker2                { ppos("endmarker::2"); }
+    | %empty                    { ppos("endmarker::?EMPTY?"); }
     ;
 
 expression:
@@ -398,6 +432,7 @@ argumentlist:
                                   $$ = new cmp::PairExpressionList($1, $3); }
     | designator                { ppos("arglist::id");
                                   $$ = new cmp::LastExpressionList($1); }
+    | %empty                    { $$ = nullptr; }
     ;
 
 expressionlist:
@@ -406,6 +441,7 @@ expressionlist:
                                   $$ = new cmp::PairExpressionList($1, $3); }
     | expression                { ppos("explist::exp");
                                   $$ = new cmp::LastExpressionList($1); }
+    | %empty                    { $$ = nullptr; }
     ;
 
 expr2:
@@ -453,9 +489,6 @@ expr4:
     | designator lparenmark expressionlist rparenmark
                                 { ppos("expr4::id(explist)");
                                   $$ = new cmp::FunctionExpression($1, $3); }
-    | designator lparenmark rparenmark
-                                { ppos("expr4::id()");
-                                  $$ = new cmp::FunctionExpression($1); }
 
     | INTEGER                   { ppos("expr4::int");
                                   std::string raw{yytext, size_t(yyleng)};

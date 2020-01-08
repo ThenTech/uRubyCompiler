@@ -1,53 +1,15 @@
-
 %{
+#pragma once
 #include "../tokens.hpp"
 #define ENUM_VAL(X) utils::traits::to_underlying(X)
 
-typedef struct {
-  int line;
-  int column;
-} yyLocation;
-
-/// Store the current position
-static yyLocation yylocation { 1, 1 };
-
 /// Called on every match
 #define YY_USER_ACTION \
-    yylocation.column += yyleng;
+    cmp::parse_flags.NextCol(yyleng);
 
 /// Call when a newline is encountered
 #define YY_NEWLINE_ACTION  \
-    yylocation.column = 1; \
-    yylocation.line++;
-
-void ppos(const char* rule = "\0") {
-    #if CMP_VERBOSE_CTORS
-        if (rule[0] != '\0')
-            utils::Logger::Writef("%03d:%03d [%s] => ", yylocation.line, yylocation.column - 1, rule);
-        else
-            utils::Logger::Writef("%03d:%03d => ", yylocation.line, yylocation.column - 1);
-    #endif
-}
-
-void lex_error(const char* const text) {
-    if (text[0] < ' ' || text[0] > '~') {
-        const std::string frmt = utils::string::format(
-            "FLEX: Illegal character 0x%02X at line %d, column %d!",
-            static_cast<int>(text[0]), yylocation.line, yylocation.column - 1
-        );
-
-        utils::Logger::Error(frmt);
-        // fprintf(stderr, "%s\n", frmt.c_str());
-    } else {
-        const std::string frmt = utils::string::format(
-            "FLEX: Illegal character \"%s\" at line %d, column %d!",
-            text, yylocation.line, yylocation.column - 1
-        );
-
-        utils::Logger::Error(frmt);
-        // fprintf(stderr, "%s\n", frmt.c_str());
-    }
-}
+    cmp::parse_flags.NextLine();
 
 %}
 
@@ -56,9 +18,9 @@ numeric       ([0-9]+((\_)?[0-9]+)*)
 real          (((({numeric}+)|({numeric}+\.{numeric}*)|({numeric}*\.{numeric}+))[eE]{1}[\-\+]?{numeric}+)|({numeric}+\.{numeric}*)|({numeric}*\.{numeric}+))
 boolean       (true|false)
 string        \"[^"]*\"
-comment       (\-{2}|\#|\/{2}).*\n
+comment       (\-{2}|\#|\/{2}).*({linefeed})
 whitespace    [\t\f\v\ ]+
-linefeed      [\r\n|\n]
+linefeed      \r?\n
 comma         \,
 colon         \:
 semicolon     \;
@@ -118,6 +80,7 @@ nil                    { return ENUM_VAL(cmp::Token::NIL);       }
 undef                  { return ENUM_VAL(cmp::Token::UNDEF);     }
 def                    { return ENUM_VAL(cmp::Token::DEF);       }
 return                 { return ENUM_VAL(cmp::Token::RETURN);    }
+print                  { return ENUM_VAL(cmp::Token::PRINT);     }
 
 {boolean}              { return ENUM_VAL(cmp::Token::BOOLEAN);     }
 {identifier}           { return ENUM_VAL(cmp::Token::ID);          }
@@ -171,15 +134,23 @@ return                 { return ENUM_VAL(cmp::Token::RETURN);    }
 
 {whitespace}           { /* Do nothing */ }
 {comment}              { YY_NEWLINE_ACTION
-                         return ENUM_VAL(cmp::Token::SEMICOLON);
+                         return ENUM_VAL(cmp::Token::ENDTOKEN);
+                        //  return ENUM_VAL(cmp::Token::SEMICOLON);
                        }
 {linefeed}             { YY_NEWLINE_ACTION
                          return ENUM_VAL(cmp::Token::ENDTOKEN);
                         //  return ENUM_VAL(cmp::Token::SEMICOLON);
                        }
 
+<<EOF>>                { if (cmp::parse_flags.ReachEOF()) {
+                            return 0;
+                         } else {
+                            return ENUM_VAL(cmp::Token::ENDTOKEN);
+                         }
+                       }
+
 .   {
-        lex_error(yytext);
+        cmp::parse_flags.ErrorIllegalChar(yytext);
     }
 
 %%
@@ -188,8 +159,8 @@ return                 { return ENUM_VAL(cmp::Token::RETURN);    }
 #if YY_FLEX_MAJOR_VERSION == 2 && \
     YY_FLEX_MINOR_VERSION == 6 && \
     YY_FLEX_SUBMINOR_VERSION == 3
-/* https://github.com/westes/flex/issues/162 */
-#undef yywrap
+    /* https://github.com/westes/flex/issues/162 */
+    #undef yywrap
 #endif
 
 #ifndef yywrap

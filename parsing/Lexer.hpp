@@ -44,7 +44,7 @@ namespace cmp {
 
             void reset_file() {
                 std::rewind(this->infile);
-                yylocation = { 1, 1 };
+                cmp::parse_flags.Reset();
                 utils::memory::delete_var(root);
             }
 

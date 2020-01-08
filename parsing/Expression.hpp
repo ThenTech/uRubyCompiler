@@ -591,15 +591,12 @@ namespace cmp {
                             // TODO
                             if (this->exp) {
                                 // Has args
-                                utils::Logger::Pause();
-                                ret = this->exp->interpret(table);
-                                utils::Logger::Resume();
                                 utils::Logger::Stream()
-                                    << fn_name
-                                    << "(" << ret << ")\n";
+                                    << "Call " << fn_name << "() with ";
+                                ret = this->exp->interpret(table);
                             } else {
                                 utils::Logger::Stream()
-                                    << fn_name << "()\n";
+                                    << "Call " << fn_name << "()\n";
                             }
                         }
                     }, argc.value());
